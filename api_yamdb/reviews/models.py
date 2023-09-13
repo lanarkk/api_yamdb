@@ -1,6 +1,6 @@
 from django.db import models
 
-LENGTH_LIMIT = 30
+LENGTH_LIMIT = 50
 
 
 class Category(models.Model):
