@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, get_list_or_404, render
+from django.shortcuts import get_object_or_404, get_list_or_404
 from rest_framework import generics, viewsets
 
 from api.serializers import (
@@ -15,6 +15,11 @@ class ViewsetsGenericsMixin(
     generics.CreateAPIView,
     generics.DestroyAPIView
 ):
+    """Создает класс (миксин) обобщенного вьюсета.
+
+    Он допускает только выдачу списка объектов, создание и удаление объкета.
+    """
+
     pass
 
 
@@ -33,6 +38,12 @@ class TitleViewset(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
 
     def create_or_update(self, serializer):
+        """Получает из запроса жанры и категорию произведения.
+
+        Если таковые присутствуют в запросе, извлекает из БД
+        соотевтетсвующие им объекты или список объектов и
+        передает их на сохранение сериализатору в виде аргументов.
+        """
         category_slug = serializer.initial_data.get('category')
         genres = serializer.initial_data.get('genre')
         kwargs = {}
