@@ -3,10 +3,12 @@ from rest_framework import generics, viewsets
 
 from api.serializers import (
     CategorySerializer,
+    CommentSerializer,
     GenreSerializer,
-    TitleSerializer
+    ReviewSerializer,
+    TitleSerializer,
 )
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Review, Title
 
 
 class ViewsetsGenericsMixin(
@@ -60,3 +62,51 @@ class TitleViewset(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         self.create_or_update(serializer)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Ревью."""
+
+    serializer_class = ReviewSerializer
+
+    def get_title(self):
+        """Возвращает объект тайтла или выдает 404."""
+        return get_object_or_404(
+            Title,
+            pk=self.kwargs.get('title_id'),
+        )
+
+    def get_queryset(self):
+        return self.get_title().reviews.all()
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            title=self.get_title()
+        )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Комментария."""
+
+    serializer_class = CommentSerializer
+
+    def get_review(self):
+        title = get_object_or_404(
+            Title,
+            pk=self.kwargs.get('title_id'),
+        )
+        return get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id'),
+            title=title,
+        )
+
+    def get_queryset(self):
+        return self.get_review().comments.all()
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            review=self.get_review()
+        )
