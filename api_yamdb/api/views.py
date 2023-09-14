@@ -1,5 +1,4 @@
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.shortcuts import get_object_or_404, get_list_or_404
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import generics, serializers, viewsets
 
 from api.serializers import (
