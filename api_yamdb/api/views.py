@@ -1,5 +1,6 @@
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.shortcuts import get_object_or_404, get_list_or_404
-from rest_framework import generics, viewsets
+from rest_framework import generics, serializers, viewsets
 
 from api.serializers import (
     CategorySerializer,
@@ -37,22 +38,43 @@ class TitleViewset(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
 
-    def create_or_update(self, serializer):
+    def fetch_read_only_fields_data(self, serializer):
         """Получает из запроса жанры и категорию произведения.
 
-        Если таковые присутствуют в запросе, извлекает из БД
-        соотевтетсвующие им объекты или список объектов и
-        передает их на сохранение сериализатору в виде аргументов.
+        Если таковые присутствуют в запросе, возвращает
+        соотевтетсвующие им объекты или список объектов БД.
         """
         category_slug = serializer.initial_data.get('category')
         genres = serializer.initial_data.get('genre')
         kwargs = {}
         if category_slug:
-            kwargs['category'] = get_object_or_404(
-                Category, slug=category_slug)
+            try:
+                kwargs['category'] = Category.objects.get(slug=category_slug)
+            except ObjectDoesNotExist:
+                kwargs['category'] = None
         if genres:
-            kwargs['genre'] = get_list_or_404(Genre, slug__in=genres)
+            kwargs['genre'] = Genre.objects.filter(slug__in=genres)
 
+        return kwargs
+
+    def validate_read_only_fields(self, check_fields, **kwargs):
+        """Проверят наличие обязательных полей и отвечающих им объектов БД."""
+        errors = {}
+        for field in check_fields:
+            if field not in kwargs and self.request.method == 'POST':
+                errors[field] = ['Обязательное поле.']
+            elif field in kwargs and not kwargs[field]:
+                errors[field] = ['Запрошенный объект не существует.']
+        if errors:
+            raise serializers.ValidationError(errors)
+
+    def create_or_update(self, serializer):
+        """Создает или изменяет запись о произведении."""
+        kwargs = self.fetch_read_only_fields_data(serializer)
+        self.validate_read_only_fields(
+            check_fields=('category', 'genre'),
+            **kwargs
+        )
         serializer.save(**kwargs)
 
     def perform_create(self, serializer):
