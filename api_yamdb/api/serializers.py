@@ -30,8 +30,7 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate_year(self, value):
-        now = datetime.now().year
-        if value > now:
+        if value > datetime.now().year:
             raise serializers.ValidationError(
                 'Указанный год выпуска произведения еще не наступил.'
             )
