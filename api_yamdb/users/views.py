@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework import status
 
 from api.services import get_all_objects
-from api.serializers import UserSerializer
 from users.serializers import AuthSerializer, SignUpSerializer
 from users.services import get_tokens_for_user
 
