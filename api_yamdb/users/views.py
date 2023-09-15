@@ -10,13 +10,12 @@ from api.serializers import UserSerializer
 from users.serializers import AuthSerializer, SignUpSerializer
 from users.services import get_tokens_for_user
 
+from api_yamdb.users.services import generate_verification_code, send_verification_email
 
 User = get_user_model()
 
 
 class Auth(GenericAPIView):
-    # Этот класс пока очень сырой, я буду его дорабатывать,
-    # но он начал работать!
     serializer_class = AuthSerializer
 
     def post(self, request):
@@ -27,7 +26,7 @@ class Auth(GenericAPIView):
         user = get_object_or_404(
             User,
             username=data.get('username'),
-            #confirmation_code=data.get('confirmation_code'),
+            confirmation_code=data.get('confirmation_code'),
         )
         tokens = get_tokens_for_user(user)
 
@@ -39,8 +38,13 @@ class Signup(mixins.CreateModelMixin,
     queryset = get_all_objects(User)
     serializer_class = SignUpSerializer
 
-    def perform_create(self, serializer):
-        confirmation_code = '1235'  # вот тут генерацию кода
+    def perform_create(self, serializer, user=User):
+        verification_code = generate_verification_code()
+        user.profile.verification_code = verification_code
+        user.profile.save()
+        #Отправка кода на указанный адрес электронной почты
+        send_verification_email(user.email, verification_code)
 
-        # Вот тут надо настроить отсылку письма с кодом
-        serializer.save(confirmation_code=confirmation_code)
+        return Response({'message': 'Регистрация прошла успешно. Проверьте'
+                         'вашу почту для активации аккаунта.'},
+                        status=status.HTTP_201_CREATED)
