@@ -112,6 +112,12 @@ class Review(models.Model):
         verbose_name_plural = 'отзывы'
         default_related_name = "reviews"
         ordering = ('pub_date',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_review'
+            ),
+        ]
 
     def __str__(self):
         return self.text[:LENGTH_LIMIT]
