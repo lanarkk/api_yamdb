@@ -1,6 +1,11 @@
+from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+
 LENGTH_LIMIT = 21
+
+User = get_user_model()
 
 
 class Category(models.Model):
@@ -72,3 +77,78 @@ class TitleGenre(models.Model):
         verbose_name='Жанр',
         null=True
     )
+
+
+class Review(models.Model):
+    """Модель отзыва. Создает в
+    бд таблицу с отзывами.
+    """
+
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Произведение',
+    )
+    text = models.TextField('Текст')
+    pub_date = models.DateTimeField(
+        'Дата публикации',
+        auto_now_add=True,
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+    )
+    score = models.IntegerField(
+        'Рейтинг',
+        validators=[
+            MaxValueValidator(10),
+            MinValueValidator(1),
+        ]
+    )
+
+    class Meta:
+        verbose_name = 'отзыв'
+        verbose_name_plural = 'отзывы'
+        default_related_name = "reviews"
+        ordering = ('pub_date',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_review'
+            ),
+        ]
+
+    def __str__(self):
+        return self.text[:LENGTH_LIMIT]
+
+
+class Comment(models.Model):
+    """Модель Комментария. Создает в
+    бд таблицу с комментариями к отзывам.
+    """
+
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        verbose_name='Отзыв',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+    )
+    text = models.TextField('Текст')
+    pub_date = models.DateTimeField(
+        'Дата публикации',
+        auto_now_add=True,
+    )
+
+    class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'комментарии'
+        default_related_name = "comments"
+        ordering = ('pub_date',)
+
+    def __str__(self):
+        return self.text[:LENGTH_LIMIT]
