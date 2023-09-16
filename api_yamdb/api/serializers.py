@@ -78,5 +78,3 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         exclude = ('review',)
         read_only_fields = ('review',)
-
-
