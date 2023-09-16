@@ -1,5 +1,5 @@
 from django.db import router
-from django.urls import path, include
+from django.urls import include, path
 
 from api_yamdb.api import views
 

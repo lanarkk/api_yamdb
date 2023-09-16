@@ -5,10 +5,10 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from api.services import get_all_objects
+from api_yamdb.users.services import (generate_verification_code,
+                                      send_verification_email)
 from users.serializers import AuthSerializer, SignUpSerializer
 from users.services import get_tokens_for_user
-
-from api_yamdb.users.services import generate_verification_code, send_verification_email
 
 User = get_user_model()
 
