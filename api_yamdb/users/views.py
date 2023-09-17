@@ -4,7 +4,6 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from api.services import get_all_objects
 from api_yamdb.users.services import (generate_verification_code,
                                       send_verification_email)
 from users.serializers import AuthSerializer, SignUpSerializer
@@ -33,7 +32,7 @@ class Auth(GenericAPIView):
 
 class Signup(mixins.CreateModelMixin,
              viewsets.GenericViewSet):
-    queryset = get_all_objects(User)
+    queryset = User.objects.all()
     serializer_class = SignUpSerializer
 
     def perform_create(self, serializer, user=User):

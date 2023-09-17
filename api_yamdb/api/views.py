@@ -32,7 +32,7 @@ class ViewsetsGenericsMixin(
 
 
 class UsersViewSet(viewsets.ModelViewSet):
-    queryset = get_all_objects(User)
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
 
