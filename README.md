@@ -68,7 +68,7 @@
 
 GET <http://127.0.0.1:8000/api/v1/titles/>
 
-'''json
+'''JSON
 
 {
     "count": 0,
@@ -102,7 +102,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
 
 GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
-'''yaml
+'''JSON
 
 {
     "count": 0,
@@ -127,7 +127,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
 POST <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/>
 
-'''yaml
+'''JSON
 {
   "text": "string"
 }
