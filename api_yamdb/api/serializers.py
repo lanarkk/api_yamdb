@@ -47,18 +47,24 @@ class ReviewSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
+    def validate(self, attrs, *args, **kwargs):
+        title_id = kwargs.get('title_id')
+        author = attrs['author']
+        review = Review.objects.filter(
+            title__id=title_id,
+            author=author
+        ).exists()
+        if review:
+            raise serializers.ValidationError(
+                detail=(f'Отзыв {author} на произведения с '
+                        f'id={title_id} уже существует')
+            )
+        return attrs
+
     class Meta:
         model = Review
         exclude = ('title',)
         read_only_fields = ('title',)
-        validators = [
-            serializers.UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title'),
-                message=('Вы можете оставить на одно'
-                         'произведение только один отзыв.')
-            ),
-        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
