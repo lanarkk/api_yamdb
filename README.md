@@ -68,7 +68,8 @@
 
 GET <http://127.0.0.1:8000/api/v1/titles/>
 
-'''yaml
+'''json
+
 {
     "count": 0,
     "next": "string",
@@ -92,6 +93,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
         }
     }
 }
+
 '''
 
 ### Получение списка всех отзывов
@@ -101,6 +103,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
 GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
 '''yaml
+
 {
     "count": 0,
     "next": "string",
@@ -115,6 +118,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
     }
 ]
 }
+
 '''
 
 ### Добавление комментария к отзыву
