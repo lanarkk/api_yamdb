@@ -68,12 +68,12 @@
 
 GET <http://127.0.0.1:8000/api/v1/titles/>
 
-'''bash
+'''json
 {
     "count": 0,
     "next": "string",
     "previous": "string",
-    "results": [
+    "results":
     {
         "id": 0,
         "name": "string",
@@ -100,7 +100,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
 
 GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
-'''bash
+'''json
 {
     "count": 0,
     "next": "string",
@@ -115,6 +115,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
         }
     ]
 }
+
 '''
 
 ### Добавление комментария к отзыву
@@ -123,9 +124,9 @@ GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
 POST <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/>
 
-'''bash
+'''json
 {
-  "text": "string"
+"text": "string"
 }
 '''
 
