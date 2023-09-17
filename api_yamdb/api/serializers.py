@@ -29,15 +29,10 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
-        
     def validate_year(self, value):
-
         if value > datetime.now().year:
-
             raise serializers.ValidationError(
-
                 'Указанный год выпуска произведения еще не наступил.'
-
             )
 
         return value
