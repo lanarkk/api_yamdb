@@ -47,20 +47,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
-    def validate(self, attrs, *args, **kwargs):
-        title_id = kwargs.get('title_id')
-        author = attrs['author']
-        review = Review.objects.filter(
-            title__id=title_id,
-            author=author
-        ).exists()
-        if review:
-            raise serializers.ValidationError(
-                detail=(f'Отзыв {author} на произведения с '
-                        f'id={title_id} уже существует')
-            )
-        return attrs
-
     class Meta:
         model = Review
         exclude = ('title',)
