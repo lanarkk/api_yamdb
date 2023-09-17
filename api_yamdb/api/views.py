@@ -1,6 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django_filters import CharFilter, FilterSet
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, serializers, viewsets
+from rest_framework import generics, filters, serializers, viewsets
 
 from api.serializers import (
     CategorySerializer,
@@ -23,22 +25,36 @@ class ViewsetsGenericsMixin(
     Он допускает только выдачу списка объектов, создание и удаление объкета.
     """
 
-    pass
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class CategoryViewset(ViewsetsGenericsMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    lookup_field = 'slug'
 
 
 class GenreViewset(ViewsetsGenericsMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    lookup_field = 'slug'
+
+
+class TitleFilter(FilterSet):
+    category = CharFilter(field_name='category__slug')
+    genre = CharFilter(field_name='genre__slug')
+
+    class Meta:
+        model = Title
+        fields = ('category', 'genre', 'name', 'year')
 
 
 class TitleViewset(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def fetch_read_only_fields_data(self, serializer):
         """Получает из запроса жанры и категорию произведения.
