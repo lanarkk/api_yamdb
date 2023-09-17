@@ -51,14 +51,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         exclude = ('title',)
         read_only_fields = ('title',)
-        validators = [
-            serializers.UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title'),
-                message=('Вы можете оставить на одно'
-                         'произведение только один отзыв.')
-            ),
-        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
