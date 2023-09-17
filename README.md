@@ -62,73 +62,9 @@
 
 ## Примеры. Некоторые примеры запросов к API
 
-### Получение списка всех произведений
-
-Получить список всех объектов. Права доступа: Доступно без токена
-
-GET <http://127.0.0.1:8000/api/v1/titles/>
-
-'''json
-{
-    "count": 0,
-    "next": "string",
-    "previous": "string",
-    "results":
-    {
-        "id": 0,
-        "name": "string",
-        "year": 0,
-        "rating": 0,
-        "description": "string",
-        "genre": [
-            {
-            "name": "string",
-            "slug": "string"
-            }
-        ],
-        "category": {
-            "name": "string",
-            "slug": "string"
-        }
-    }
-}
-'''
-
-### Получение списка всех отзывов
-
-Получить список всех отзывов. Права доступа: Доступно без токена.
-
-GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
-
-'''json
-{
-    "count": 0,
-    "next": "string",
-    "previous": "string",
-    "results": [
-        {
-            "id": 0,
-            "text": "string",
-            "author": "string",
-            "score": "integer",
-            "pub_date": "timestamp"
-        }
-    ]
-}
-
-'''
-
-### Добавление комментария к отзыву
-
-Добавить новый комментарий для отзыва. Права доступа: Аутентифицированные пользователи.
-
-POST <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/>
-
-'''json
-{
-"text": "string"
-}
-'''
+```json
+Here goes your json object definition
+```
 
 Авторы: Максим Федякин, Лилия Костырева, Дмитрий Жадаев
 GitHubs <https://github.com/lanarkk>, <https://github.com/jlell>, <https://github.com/dmitriizh>
