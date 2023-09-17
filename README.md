@@ -129,9 +129,6 @@ POST <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comment
 }
 ```
 
-Авторы: Максим Федякин, Лилия Костырева, Дмитрий Жадаев
-GitHubs <https://github.com/lanarkk>, <https://github.com/jlell>, <https://github.com/dmitriizh>
-
 |Авторы:|Максим Федякин|Лилия Костырева|Дмитрий Жадаев|
 |-|-|-|-|
 |GitHubs:|<https://github.com/lanarkk>|<https://github.com/jlell>|<https://github.com/dmitriizh>|
