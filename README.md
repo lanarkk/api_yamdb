@@ -68,7 +68,7 @@
 
 GET <http://127.0.0.1:8000/api/v1/titles/>
 
-'''json
+```json
 {
     "count": 0,
     "next": "string",
@@ -92,7 +92,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
         }
     }
 }
-'''
+```
 
 ### Получение списка всех отзывов
 
@@ -100,7 +100,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
 
 GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
-'''json
+```json
 {
     "count": 0,
     "next": "string",
@@ -115,8 +115,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
         }
     ]
 }
-
-'''
+```
 
 ### Добавление комментария к отзыву
 
@@ -124,11 +123,11 @@ GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
 POST <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/>
 
-'''json
+```json
 {
 "text": "string"
 }
-'''
+```
 
 Авторы: Максим Федякин, Лилия Костырева, Дмитрий Жадаев
 GitHubs <https://github.com/lanarkk>, <https://github.com/jlell>, <https://github.com/dmitriizh>
