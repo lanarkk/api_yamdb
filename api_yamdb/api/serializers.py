@@ -24,10 +24,25 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(read_only=True, many=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = '__all__'
+
+    def get_rating(self, obj):
+        reviews = Review.objects.filter(
+            title=Title.objects.get(pk=obj.pk)
+        )
+        if reviews.exists():
+            rating = 0
+            count = 0
+            for review in reviews:
+                rating += review.score
+                count += 1
+            rating /= count
+            return int(rating)
+        return 0
 
     def validate_year(self, value):
         if value > datetime.now().year:

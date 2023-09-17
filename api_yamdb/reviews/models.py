@@ -42,7 +42,6 @@ class Title(models.Model):
     name = models.CharField('Название', max_length=256)
     year = models.IntegerField('Год выпуска')
     description = models.TextField('Описание', blank=True)
-    rating = models.IntegerField('Рейтинг', blank=True, null=True)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
