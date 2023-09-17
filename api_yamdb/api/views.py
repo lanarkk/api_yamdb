@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import generics, serializers, viewsets
 
@@ -7,8 +8,13 @@ from api.serializers import (
     GenreSerializer,
     ReviewSerializer,
     TitleSerializer,
+    UserSerializer,
 )
 from reviews.models import Category, Genre, Review, Title
+from api.permissions import IsAdmin
+
+
+User = get_user_model()
 
 
 class ViewsetsGenericsMixin(
@@ -23,6 +29,12 @@ class ViewsetsGenericsMixin(
     """
 
     pass
+
+
+class UsersViewSet(viewsets.ModelViewSet):
+    queryset = get_all_objects(User)
+    serializer_class = UserSerializer
+    permission_classes = (IsAdmin,)
 
 
 class CategoryViewset(ViewsetsGenericsMixin):

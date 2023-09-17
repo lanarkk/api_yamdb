@@ -1,7 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -26,6 +25,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -107,6 +107,12 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -119,6 +125,6 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=14),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
