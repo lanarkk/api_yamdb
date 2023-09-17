@@ -29,15 +29,10 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
-        
     def validate_year(self, value):
-
         if value > datetime.now().year:
-
             raise serializers.ValidationError(
-
                 'Указанный год выпуска произведения еще не наступил.'
-
             )
 
         return value
@@ -56,14 +51,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         exclude = ('title',)
         read_only_fields = ('title',)
-        validators = [
-            serializers.UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title'),
-                message=('Вы можете оставить на одно'
-                         'произведение только один отзыв.')
-            ),
-        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):

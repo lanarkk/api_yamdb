@@ -118,6 +118,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
+        review = Review.objects.filter(
+            title=self.get_title(),
+            author=self.request.user
+        ).exists()
+        if review:
+            raise serializers.ValidationError(
+                'Нельзя оставить больше одного '
+                'отзыва на одно произведение!'
+            )
         serializer.save(
             author=self.request.user,
             title=self.get_title()
