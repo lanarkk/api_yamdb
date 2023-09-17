@@ -68,7 +68,7 @@
 
 GET <http://127.0.0.1:8000/api/v1/titles/>
 
-'''application/json
+'''json
 {
     "count": 0,
     "next": "string",
