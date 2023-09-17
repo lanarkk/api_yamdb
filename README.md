@@ -100,7 +100,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
 
 GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
-'''application/json
+'''application
 {
     "count": 0,
     "next": "string",
