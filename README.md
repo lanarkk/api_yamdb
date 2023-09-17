@@ -68,8 +68,7 @@
 
 GET <http://127.0.0.1:8000/api/v1/titles/>
 
-'''JSON
-
+'''bash
 {
     "count": 0,
     "next": "string",
@@ -93,7 +92,6 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
         }
     }
 }
-
 '''
 
 ### Получение списка всех отзывов
@@ -102,23 +100,21 @@ GET <http://127.0.0.1:8000/api/v1/titles/>
 
 GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
-'''JSON
-
+'''bash
 {
     "count": 0,
     "next": "string",
     "previous": "string",
     "results": [
-    {
-        "id": 0,
-        "text": "string",
-        "author": "string",
-        "score": "integer",
-        "pub_date": "timestamp"
-    }
-]
+        {
+            "id": 0,
+            "text": "string",
+            "author": "string",
+            "score": "integer",
+            "pub_date": "timestamp"
+        }
+    ]
 }
-
 '''
 
 ### Добавление комментария к отзыву
@@ -127,7 +123,7 @@ GET <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/>
 
 POST <http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/>
 
-'''JSON
+'''bash
 {
   "text": "string"
 }
