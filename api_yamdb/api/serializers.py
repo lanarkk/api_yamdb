@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.db.models import Avg
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -31,17 +32,11 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_rating(self, obj):
-        reviews = Review.objects.filter(
-            title=Title.objects.get(pk=obj.pk)
-        )
-        if reviews.exists():
-            rating = 0
-            count = 0
-            for review in reviews:
-                rating += review.score
-                count += 1
-            rating /= count
-            return int(rating)
+        reviews = Title.objects.get(
+            pk=obj.pk
+        ).reviews.all().aggregate(Avg('score'))
+        if reviews['score__avg']:
+            return int(round(reviews['score__avg'], 0))
         return 0
 
     def validate_year(self, value):
