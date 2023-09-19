@@ -4,8 +4,8 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from api_yamdb.users.services import (generate_verification_code,
-                                      send_verification_email)
+from users.services import (generate_verification_code,
+                            send_verification_email)
 from users.serializers import AuthSerializer, SignUpSerializer
 from users.services import get_tokens_for_user
 
@@ -39,7 +39,7 @@ class Signup(mixins.CreateModelMixin,
         verification_code = generate_verification_code()
         user.profile.verification_code = verification_code
         user.profile.save()
-        #Отправка кода на указанный адрес электронной почты
+        # Отправка кода на указанный адрес электронной почты
         send_verification_email(user.email, verification_code)
 
         return Response({'message': 'Регистрация прошла успешно. Проверьте'
