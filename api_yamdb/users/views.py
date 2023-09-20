@@ -1,3 +1,6 @@
+# TODO Добавить вью для users/me/ и users/{username}/
+# if kwargs.get('username') == me дя заметки
+# обрабатываются одним классом
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, status, viewsets

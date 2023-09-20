@@ -1,3 +1,4 @@
+# TODO дописать пермишн "владелец аккаунта или нет доступа"
 from rest_framework import permissions
 
 

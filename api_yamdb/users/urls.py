@@ -1,3 +1,4 @@
+# TODO в url добавить пути для users/me/ и users/{username}/ 
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
