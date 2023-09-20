@@ -10,6 +10,13 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email')
 
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Ты не можешь использовать me в качестве имени!'
+            )
+        return value
+
 
 class AuthSerializer(serializers.Serializer):
     username = serializers.CharField()
