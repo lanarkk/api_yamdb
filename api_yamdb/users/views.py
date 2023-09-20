@@ -17,8 +17,8 @@ class Auth(GenericAPIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
+        serializer.is_valid(raise_exception=True) # is_valid() возвращает булл, зачем он тут?
+        data = serializer.validated_data          # и что тут в скобках?
 
         user = get_object_or_404(
             User,
@@ -37,8 +37,8 @@ class Signup(mixins.CreateModelMixin,
 
     def perform_create(self, serializer, user=User):
         verification_code = generate_verification_code()
-        user.profile.verification_code = verification_code
-        user.profile.save()
+        user.profile.verification_code = verification_code  # у тебя в модели нет ни profile,
+        user.profile.save()                                 # ни verification_code.
         # Отправка кода на указанный адрес электронной почты
         send_verification_email(user.email, verification_code)
 

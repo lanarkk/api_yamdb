@@ -1,7 +1,7 @@
 import mailbox
 import os
 import string
-from random import random
+from random import choice
 
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -11,7 +11,7 @@ User = get_user_model()
 
 def generate_verification_code(length=6):
     characters = string.ascii_letters + string.digits
-    code = ''.join(random.choice(characters) for _ in range(length))
+    code = ''.join(choice(characters) for _ in range(length))
     return code
 
 
@@ -35,7 +35,7 @@ def send_verification_email(to_email, verification_code):
     mbox.flush()
 
     print(f'Письмо сохранено в локальной папке'
-          'для {to_email}')
+          f'для {to_email}')
 
 
 def get_tokens_for_user(user: User):

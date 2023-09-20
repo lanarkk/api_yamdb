@@ -1,12 +1,12 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from users import views
+from users.views import Signup, Auth
 
 router = DefaultRouter()
-router.register('signup', views.Signup)
+router.register('signup', Signup, basename='signup')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('token/', views.Auth.as_view())
+    path('token/', Auth.as_view())
 ]
