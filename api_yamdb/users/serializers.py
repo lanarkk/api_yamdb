@@ -2,15 +2,22 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from users.models import Profile
 
 User = get_user_model()
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = Profile
-        fields = '__all__'
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
 
 
 class SignUpSerializer(serializers.ModelSerializer):

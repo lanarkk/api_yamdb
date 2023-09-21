@@ -8,7 +8,11 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
 from users.services import send_verification_code, generate_verification_code
-from users.serializers import AuthSerializer, SignUpSerializer
+from users.serializers import (
+    AuthSerializer,
+    SignUpSerializer,
+    ProfileSerializer
+)
 from users.services import get_tokens_for_user
 
 User = get_user_model()
@@ -16,21 +20,31 @@ User = get_user_model()
 
 class UserProfileView(RetrieveAPIView):
     queryset = User.objects.all()
-    serializer_class = AuthSerializer  # акт мой сериалайзер
+    serializer_class = ProfileSerializer  # акт мой сериалайзер
 
     def retrieve(self, request, *args, **kwargs):
         # Является ли запрашиваемое имя пользователя "me"
-        requested_username = kwargs.get('username')
-        if requested_username == 'me':
-            user = self.request.user
-            if user.is_anonymous:
-                return Response({'detail': 'Требуется аутентификация.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if kwargs:
+            if User.objects.filter(
+                username=self.kwargs.get('username')
+            ).exists():
+                if self.request.user.role == 'admin':
+                    user = get_object_or_404(
+                        User,
+                        username=self.kwargs.get('username'),
+                    )
+                else:
+                    return Response(
+                        {'detail': 'У вас недостаточно прав.'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            else:
+                return Response(
+                    {'detail': 'Пользователь не найден.'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
         else:
-            # Получить пользователя по указанному имени
-            user = User.objects.filter(username=requested_username).first()
-
-        if user is None:
-            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_404_NOT_FOUND)
+            user = self.request.user
 
         serializer = self.get_serializer(user)
         return Response(serializer.data)
