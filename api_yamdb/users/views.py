@@ -4,7 +4,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, status, viewsets
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
 from users.services import send_verification_code, generate_verification_code
@@ -12,6 +12,28 @@ from users.serializers import AuthSerializer, SignUpSerializer
 from users.services import get_tokens_for_user
 
 User = get_user_model()
+
+
+class UserProfileView(RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = AuthSerializer  # акт мой сериалайзер
+
+    def retrieve(self, request, *args, **kwargs):
+        # Является ли запрашиваемое имя пользователя "me"
+        requested_username = kwargs.get('username')
+        if requested_username == 'me':
+            user = self.request.user
+            if user.is_anonymous:
+                return Response({'detail': 'Требуется аутентификация.'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            # Получить пользователя по указанному имени
+            user = User.objects.filter(username=requested_username).first()
+
+        if user is None:
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
 
 
 class Auth(CreateAPIView):
