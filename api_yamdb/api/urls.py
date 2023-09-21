@@ -26,7 +26,7 @@ router_v1.register(
     basename='reviews'
 )
 urls_v1 = [
-    path('', include('users.urls')),
+    path('', include('users.urls')),  # не понятно работает
     path('', include(router_v1.urls)),
 ]
 urlpatterns = [

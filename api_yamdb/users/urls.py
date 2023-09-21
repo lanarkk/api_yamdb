@@ -11,12 +11,12 @@ auth_urls = [
     path('', include(router.urls)),
     path('token/', Auth.as_view()),
 ]
-user_urls = [
-    path('me/', UserProfileView.as_view()),
-    path('<str:username>/', UserProfileView.as_view()),
+user_urls = [  # не работает
+    path('me/', UserProfileView.as_view()),  # не работает
+    path('<str:username>/', UserProfileView.as_view()),  # не работает
 ]
 
 urlpatterns = [
-    path('users/', include(auth_urls)),
+    path('users/', include(auth_urls)),  # не работает
     path('auth/', include(auth_urls)),
 ]
