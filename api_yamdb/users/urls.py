@@ -1,13 +1,9 @@
 # TODO в url добавить пути для users/me/ и users/{username}/ 
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 
-from users.views import Signup, Auth
-
-router = DefaultRouter()
-router.register('signup', Signup, basename='signup')
+from users.views import Auth, Signup
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('token/', Auth.as_view())
+    path('signup/', Signup.as_view()),
+    path('token/', Auth.as_view()),
 ]

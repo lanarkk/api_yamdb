@@ -27,3 +27,6 @@ class CustomUser(AbstractUser):
         choices=Roles.choices,
         default=Roles.USER,
     )
+
+    class Meta:
+        ordering = ('date_joined',)
