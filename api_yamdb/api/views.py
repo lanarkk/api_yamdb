@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, filters, serializers, viewsets
+from rest_framework import generics, filters, serializers, viewsets, mixins
 
 from api.serializers import (
     CategorySerializer,
@@ -14,7 +14,7 @@ from api.serializers import (
     UserSerializer,
 )
 from reviews.models import Category, Genre, Review, Title
-from api.permissions import IsAdmin
+from api.permissions import IsAdmin, IsAdminUserOrReadOnly
 
 
 User = get_user_model()
@@ -35,24 +35,37 @@ class ViewsetsGenericsMixin(
     search_fields = ('name',)
 
 
+class CreateDeleteListMixin(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
+    pass
+
+
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
+    permission_classes = (IsAdmin,)
 
 
-class CategoryViewset(ViewsetsGenericsMixin):
+class CategoryViewset(CreateDeleteListMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    permission_classes = (IsAdminUserOrReadOnly, )
 
 
-class GenreViewset(ViewsetsGenericsMixin):
+class GenreViewset(CreateDeleteListMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = 'slug'
+    permission_classes = (IsAdminUserOrReadOnly, )
 
 
 class TitleFilter(FilterSet):
@@ -69,6 +82,7 @@ class TitleViewset(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+    permission_classes = (IsAdminUserOrReadOnly, )
 
     def fetch_read_only_fields_data(self, serializer):
         """Получает из запроса жанры и категорию произведения.
