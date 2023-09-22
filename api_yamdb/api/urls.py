@@ -5,6 +5,7 @@ from .views import (
     CategoryViewset,
     CommentViewSet,
     GenreViewset,
+    ProfileViewSet,
     ReviewViewSet,
     TitleViewset,
     UsersViewSet,
@@ -26,6 +27,7 @@ router_v1.register(
     basename='reviews'
 )
 urls_v1 = [
+    path('users/me/', ProfileViewSet.as_view()),
     path('', include(router_v1.urls)),
     path('auth/', include('users.urls'))
 ]

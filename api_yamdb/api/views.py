@@ -3,7 +3,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, filters, serializers, viewsets, mixins
+from rest_framework import filters, mixins, serializers, status, viewsets, mixins
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api.serializers import (
     CategorySerializer,
@@ -22,9 +24,9 @@ User = get_user_model()
 
 class ViewsetsGenericsMixin(
     viewsets.GenericViewSet,
-    generics.ListAPIView,
-    generics.CreateAPIView,
-    generics.DestroyAPIView
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin
 ):
     """Создает класс (миксин) обобщенного вьюсета.
 
@@ -45,11 +47,50 @@ class CreateDeleteListMixin(
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    """Обрабатывает запросы к users/ и users/{username}/."""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    lookup_field = 'username'
+    permission_classes = (IsAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     permission_classes = (IsAdmin,)
+    http_method_names = [
+        'get', 'post', 'patch', 'delete', 'head', 'options', 'trace'
+    ]
+
+
+class ProfileViewSet(APIView):
+    """Обрабатывает запросы к users/me/."""
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            user = get_object_or_404(
+                User,
+                username=request.user.username
+            )
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {'message': 'Неавторизованный пользователь'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    def patch(self, request):
+        if request.user.is_authenticated:
+            user = get_object_or_404(
+                User,
+                username=request.user.username
+            )
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save(role=user.role)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class CategoryViewset(CreateDeleteListMixin):
