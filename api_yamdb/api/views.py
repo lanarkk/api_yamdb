@@ -66,6 +66,8 @@ class GenreViewset(CreateDeleteListMixin):
     serializer_class = GenreSerializer
     lookup_field = 'slug'
     permission_classes = (IsAdminUserOrReadOnly, )
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class TitleFilter(FilterSet):
