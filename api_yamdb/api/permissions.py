@@ -7,7 +7,11 @@ class IsAdmin(permissions.BasePermission):
                        request,
                        view):
         return (
-            request.user.is_authenticated and (request.user.role == 'admin')
+            request.user.is_authenticated
+            and (
+                request.user.role == 'admin'
+                or request.user.is_superuser
+            )
         )
 
 
