@@ -54,7 +54,7 @@ class TitleSerializer(serializers.ModelSerializer):
         ).reviews.all().aggregate(Avg('score'))
         if reviews['score__avg']:
             return int(round(reviews['score__avg'], 0))
-        return 0
+        return None
 
     def validate_year(self, value):
         if value > datetime.now().year:

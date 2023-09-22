@@ -27,33 +27,26 @@ class IsAdminUserOrReadOnly(permissions.IsAdminUser):
         )
 
 
-class IsAdminOrReadOnly(permissions.BasePermission):
-    def has_permission(self,
-                       request,
-                       view):
-        return (
-            request.method in permissions.SAFE_METHODS
-            or (request.user.is_authenticated and request.user.role == "admin")
-        )
+class IsAuthorAuthenticatedOrReadOnly(
+    permissions.IsAuthenticatedOrReadOnly
+):
+    """Права доступа для авторизованного пользователя или операций чтения.
 
+    Допускает частичное изменение и удаление пользователем своих
+    собственных объектов (отзыва и комментария к нему).
+    Модератор и администратор могут также изменять и удалать чужие материалы.
+    """
 
-class AuthorAdminModeratorOrReadOnly(permissions.BasePermission):
-    def has_permission(self,
-                       request,
-                       view):
-        return (
-            request.method in permissions.SAFE_METHODS
-            or request.user.is_authenticated
-        )
-
-    def has_object_permission(self,
-                              request,
-                              view,
-                              obj):
+    def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-
-        return any([
-            obj.author == request.user,
+        elif (
+            request.user.role == 'user'
+            and obj.author == request.user
+        ):
+            return True
+        elif (
             request.user.role in ['moderator', 'admin']
-        ])
+            and view.action in ['partial_update', 'destroy']
+        ):
+            return True
