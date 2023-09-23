@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -17,6 +18,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
+        ordering = ('slug',)
 
     def __str__(self):
         return self.slug[:LENGTH_LIMIT]
@@ -31,6 +33,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
+        ordering = ('slug',)
 
     def __str__(self):
         return self.slug[:LENGTH_LIMIT]
@@ -57,6 +60,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name[:LENGTH_LIMIT]
@@ -94,7 +98,7 @@ class Review(models.Model):
         auto_now_add=True,
     )
     author = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
@@ -133,7 +137,7 @@ class Comment(models.Model):
         verbose_name='Отзыв',
     )
     author = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )

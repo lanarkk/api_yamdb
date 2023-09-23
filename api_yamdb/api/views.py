@@ -1,8 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, filters, serializers, viewsets
+from rest_framework import filters, mixins, serializers, status, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api.serializers import (
     CategorySerializer,
@@ -10,35 +13,98 @@ from api.serializers import (
     GenreSerializer,
     ReviewSerializer,
     TitleSerializer,
+    UserSerializer,
 )
 from reviews.models import Category, Genre, Review, Title
+from api.permissions import (
+    IsAdmin,
+    IsAdminUserOrReadOnly,
+    IsAuthorAuthenticatedOrReadOnly
+)
+
+User = get_user_model()
 
 
 class ViewsetsGenericsMixin(
     viewsets.GenericViewSet,
-    generics.ListAPIView,
-    generics.CreateAPIView,
-    generics.DestroyAPIView
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin
 ):
     """Создает класс (миксин) обобщенного вьюсета.
 
     Он допускает только выдачу списка объектов, создание и удаление объкета.
+    В нем настроен поиск по полю 'name'.
     """
 
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
 
+class AllowedMethodsMixin(viewsets.ModelViewSet):
+    """Создает миксин с настроенными допустимыми методами (все, кроме PUT)."""
+
+    http_method_names = [
+        'get', 'post', 'patch', 'delete', 'head', 'options', 'trace'
+    ]
+
+
+class UsersViewSet(AllowedMethodsMixin):
+    """Обрабатывает запросы к users/ и users/{username}/."""
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'username'
+    permission_classes = (IsAdmin,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
+    permission_classes = (IsAdmin,)
+
+
+class ProfileViewSet(APIView):
+    """Обрабатывает запросы к users/me/."""
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            user = get_object_or_404(
+                User,
+                username=request.user.username
+            )
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {'message': 'Неавторизованный пользователь'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    def patch(self, request):
+        if request.user.is_authenticated:
+            user = get_object_or_404(
+                User,
+                username=request.user.username
+            )
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save(role=user.role)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 class CategoryViewset(ViewsetsGenericsMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = 'slug'
+    permission_classes = (IsAdminUserOrReadOnly, )
 
 
 class GenreViewset(ViewsetsGenericsMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = 'slug'
+    permission_classes = (IsAdminUserOrReadOnly, )
 
 
 class TitleFilter(FilterSet):
@@ -50,11 +116,12 @@ class TitleFilter(FilterSet):
         fields = ('category', 'genre', 'name', 'year')
 
 
-class TitleViewset(viewsets.ModelViewSet):
+class TitleViewset(AllowedMethodsMixin):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+    permission_classes = (IsAdminUserOrReadOnly,)
 
     def fetch_read_only_fields_data(self, serializer):
         """Получает из запроса жанры и категорию произведения.
@@ -63,7 +130,10 @@ class TitleViewset(viewsets.ModelViewSet):
         соотевтетсвующие им объекты или список объектов БД.
         """
         category_slug = serializer.initial_data.get('category')
-        genres = serializer.initial_data.get('genre')
+        try:
+            genres = serializer.initial_data.getlist('genre')
+        except AttributeError:
+            genres = serializer.initial_data.get('genre')
         kwargs = {}
         if category_slug:
             try:
@@ -102,10 +172,13 @@ class TitleViewset(viewsets.ModelViewSet):
         self.create_or_update(serializer)
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(AllowedMethodsMixin):
     """Вьюсет для модели Ревью."""
 
     serializer_class = ReviewSerializer
+    permission_classes = (
+        IsAuthorAuthenticatedOrReadOnly,
+    )
 
     def get_title(self):
         """Возвращает объект тайтла или выдает 404."""
@@ -133,10 +206,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(AllowedMethodsMixin):
     """Вьюсет для модели Комментария."""
 
     serializer_class = CommentSerializer
+    permission_classes = (
+        IsAuthorAuthenticatedOrReadOnly,
+    )
 
     def get_review(self):
         title = get_object_or_404(

@@ -5,11 +5,14 @@ from .views import (
     CategoryViewset,
     CommentViewSet,
     GenreViewset,
+    ProfileViewSet,
     ReviewViewSet,
     TitleViewset,
+    UsersViewSet,
 )
 
 router_v1 = routers.DefaultRouter()
+router_v1.register('users', UsersViewSet, basename='users')
 router_v1.register('categories', CategoryViewset, basename='categories')
 router_v1.register('genres', GenreViewset, basename='genres')
 router_v1.register('titles', TitleViewset, basename='titles')
@@ -23,6 +26,11 @@ router_v1.register(
     CommentViewSet,
     basename='reviews'
 )
+urls_v1 = [
+    path('users/me/', ProfileViewSet.as_view()),
+    path('', include(router_v1.urls)),
+    path('auth/', include('users.urls'))
+]
 urlpatterns = [
-    path('v1/', include(router_v1.urls)),
+    path('v1/', include(urls_v1)),
 ]
