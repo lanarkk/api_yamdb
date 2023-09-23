@@ -46,7 +46,10 @@ class IsAuthorAuthenticatedOrReadOnly(
         ):
             return True
         elif (
-            request.user.role in ['moderator', 'admin']
+            (
+                request.user.role in ['moderator', 'admin']
+                or request.user.is_superuser
+            )
             and view.action in ['partial_update', 'destroy']
         ):
             return True

@@ -10,9 +10,9 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-
         fields = (
             'username',
             'email',
@@ -21,6 +21,13 @@ class UserSerializer(serializers.ModelSerializer):
             'bio',
             'role'
         )
+
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Нельзя использовать "me" в качестве имени пользователя.'
+            )
+        return value
 
 
 class CategorySerializer(serializers.ModelSerializer):

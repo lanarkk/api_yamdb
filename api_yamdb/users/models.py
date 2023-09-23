@@ -19,7 +19,7 @@ class CustomUser(AbstractUser):
     bio = models.TextField(
         _('user biography'),
         blank=True,
-        null=True,
+        default=''
     )
     role = models.CharField(
         _('user role'),

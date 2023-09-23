@@ -130,7 +130,10 @@ class TitleViewset(AllowedMethodsMixin):
         соотевтетсвующие им объекты или список объектов БД.
         """
         category_slug = serializer.initial_data.get('category')
-        genres = serializer.initial_data.getlist('genre')
+        try:
+            genres = serializer.initial_data.getlist('genre')
+        except AttributeError:
+            genres = serializer.initial_data.get('genre')
         kwargs = {}
         if category_slug:
             try:
