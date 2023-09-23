@@ -1,26 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, serializers, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serializers import (
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    ReviewSerializer,
-    TitleSerializer,
-    UserSerializer,
-)
+from api.permissions import (IsAdmin, IsAdminUserOrReadOnly,
+                             IsAuthorAuthenticatedOrReadOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, ReviewSerializer,
+                             TitleSerializer, UserSerializer)
 from reviews.models import Category, Genre, Review, Title
-from api.permissions import (
-    IsAdmin,
-    IsAdminUserOrReadOnly,
-    IsAuthorAuthenticatedOrReadOnly
-)
 
 User = get_user_model()
 

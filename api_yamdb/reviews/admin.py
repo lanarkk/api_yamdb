@@ -1,3 +1,56 @@
 from django.contrib import admin
 
-# Register your models here.
+from reviews.models import Category, Comment, Genre, Review, Title
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+
+    fields = (
+        'name',
+        'slug',
+    )
+
+
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+
+    fields = (
+        'name',
+        'slug',
+    )
+
+
+@admin.register(Title)
+class TitleAdmin(admin.ModelAdmin):
+
+    fields = (
+        'name',
+        'year',
+        'description',
+        'category',
+        'genre',
+    )
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+
+    fields = (
+        'title',
+        'text',
+        'pub_date',
+        'author',
+        'score',
+    )
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+
+    fields = (
+        'review',
+        'author',
+        'text',
+        'pub_date',
+    )

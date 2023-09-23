@@ -1,6 +1,3 @@
-# TODO Добавить вью для users/me/ и users/{username}/
-# if kwargs.get('username') == me дя заметки
-# обрабатываются одним классом
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
@@ -9,11 +6,8 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 
 from users.serializers import AuthSerializer, SignUpSerializer
-from users.services import (
-    generate_verification_code,
-    get_tokens_for_user,
-    send_verification_code
-)
+from users.services import (generate_verification_code, get_tokens_for_user,
+                            send_verification_code)
 
 User = get_user_model()
 
