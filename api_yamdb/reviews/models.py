@@ -43,6 +43,11 @@ class Title(models.Model):
 
     name = models.CharField('Название', max_length=256)
     year = models.IntegerField('Год выпуска')
+    # Тут лучше использовать PositiveSmallIntegerField. Будет
+    # занимать меньше места в БД.
+    # Не хватает валидации, что год не больше текущего.
+    # Чтобы ускорить поиск произведений по году,
+    # лучше добавить индекс. Как это работает.
     description = models.TextField('Описание', blank=True)
     category = models.ForeignKey(
         Category,
@@ -105,6 +110,9 @@ class Review(models.Model):
         'Рейтинг',
         validators=[
             MaxValueValidator(10),
+            # Лучше добавить сообщение, чтобы пользователь понимал,
+            # что поправить.
+            # Для этого поля можно указать дефолтное значение.
             MinValueValidator(1),
         ]
     )
@@ -154,3 +162,10 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text[:LENGTH_LIMIT]
+
+# Общее для всех моделей:
+    # Длины полей убрать в константы.
+    # Для моделей с одинаковыми полями
+    # создать абстрактные классы.
+    # Для абстрактных классов учесть, что Meta тоже общая,
+    # ее тоже наследовать от Meta абстрактного класса.
