@@ -1,19 +1,14 @@
 from django.contrib import admin
-from django.contrib.auth import get_user_model
 
-User = get_user_model()
+from reviews.models import User
 
 
-@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    fields = (
-        'username',
-        'email',
-        'first_name',
-        'last_name',
-        'bio',
-        'role',
-    )
+    list_display = ('username', 'email', 'role')
+    list_editable = ('role',)
+
+
+admin.site.register(User, UserAdmin)
 # Так как наш проект управляется командой администраторов,
 # админ-части также стоить уделить внимание.
 # Заводим все модели, настраиваем классы.
