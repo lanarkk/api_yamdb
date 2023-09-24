@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 class CustomUser(AbstractUser):
     class Roles(models.TextChoices):
         # Нужны пустые строки до и после класса.
+        # дима
         USER: str = 'user'
         MODERATOR: str = 'moderator'
         ADMIN: str = 'admin'
@@ -29,6 +30,7 @@ class CustomUser(AbstractUser):
         # Если в будущем нужно будет заводить еще роли,
         # то тут не придется править. В генераторе списка подсчитываем
         # длины ролей, максимальная будет граничным значением.
+        # дима
         choices=Roles.choices,
         default=Roles.USER,
     )
@@ -36,3 +38,4 @@ class CustomUser(AbstractUser):
     class Meta:
         ordering = ('date_joined',)
         # Для поля username нужна валидация на "me".
+        # дима

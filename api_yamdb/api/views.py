@@ -18,7 +18,7 @@ User = get_user_model()
 
 
 class ViewsetsGenericsMixin(
-    # Хорошо. Стоит вынести в отдельный файл - mixins.py.
+    # Хорошо. Стоит вынести в отдельный файл - mixins.py. лиля
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
@@ -58,11 +58,13 @@ class ProfileViewSet(APIView):
     # Лучше реализовать users/me/ через декоратор action в UsersViewSet,
     # не придется переписывать два метода,
     # обойдемся условием и избавимся от дублирующих строк.
+    # дима
     """Обрабатывает запросы к users/me/."""
 
     def get(self, request):
         if request.user.is_authenticated:
             # Можно воспользоваться стандартным пермишеном.
+            # лиля
             user = get_object_or_404(
                 User,
                 username=request.user.username
@@ -85,6 +87,7 @@ class ProfileViewSet(APIView):
                 # У метода is_valid есть параметр-флаг raise_exception,
                 # если его поставить в True, то можно избавиться
                 # от проверок, метод вернет ошибки валидации.
+                # лиля
                 serializer.save(role=user.role)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(
@@ -101,7 +104,7 @@ class CategoryViewset(ViewsetsGenericsMixin):
 
 
 class GenreViewset(ViewsetsGenericsMixin):
-    # Обратите внимание, что еще можно убрать в миксин.
+    # Обратите внимание, что еще можно убрать в миксин. лиля
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = 'slug'
@@ -110,7 +113,7 @@ class GenreViewset(ViewsetsGenericsMixin):
 
 class TitleFilter(FilterSet):
     # Это класс фильтрации, лучше создать файл с
-    # "говорящим" названием и вынести код туда
+    # "говорящим" названием и вынести код туда. макс
     category = CharFilter(field_name='category__slug')
     genre = CharFilter(field_name='genre__slug')
 
@@ -176,6 +179,7 @@ class TitleViewset(AllowedMethodsMixin):
 # Предлагаю написать еще один сереализатор для произведения,
 # будет один для создания/обновления, один для вывода,
 # тут просто выбирать в зависимости от запроса. Код сильно похудеет.
+# лиля
 
 
 class ReviewViewSet(AllowedMethodsMixin):
@@ -225,7 +229,7 @@ class CommentViewSet(AllowedMethodsMixin):
         title = get_object_or_404(
             Title,
             pk=self.kwargs.get('title_id'),
-        )  # Лишний запрос, все можно сделать в одном.
+        )  # Лишний запрос, все можно сделать в одном. макс
         return get_object_or_404(
             Review,
             pk=self.kwargs.get('review_id'),

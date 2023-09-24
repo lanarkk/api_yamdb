@@ -12,6 +12,7 @@ def generate_verification_code(length=6):
     characters = string.ascii_letters + string.digits
     # У джанго есть механизм для генерации токенов default_token_generator.
     # Посмотрите в эту сторону. Не придется хранить токен в БД.
+    # дима
     code = ''.join(choice(characters) for _ in range(length))
     return code
 
@@ -21,7 +22,7 @@ def send_verification_code(confirmation_code, user_email):
         subject='Код подтверждения регистрации',
         message=f'Ваш код подтверждения: {confirmation_code}',
         from_email='production@yandex.ru',
-        # Емейл отправителя письма выносим в константу в настройках приложения.
+        # Емейл отправителя письма выносим в константу в настройках приложения. дима
         recipient_list=[user_email],
         fail_silently=True,
     )

@@ -48,6 +48,9 @@ class Title(models.Model):
     # Не хватает валидации, что год не больше текущего.
     # Чтобы ускорить поиск произведений по году,
     # лучше добавить индекс. Как это работает.
+    # https://im-cloud.ru/blog/chto-takoe-indeksy-bazy-dannyh-dlja-nachinajushhih/
+    # https://docs.djangoproject.com/en/2.2/ref/models/fields/#positivesmallintegerfield
+    # лиля
     description = models.TextField('Описание', blank=True)
     category = models.ForeignKey(
         Category,
@@ -113,6 +116,7 @@ class Review(models.Model):
             # Лучше добавить сообщение, чтобы пользователь понимал,
             # что поправить.
             # Для этого поля можно указать дефолтное значение.
+            # макс
             MinValueValidator(1),
         ]
     )
@@ -169,3 +173,4 @@ class Comment(models.Model):
     # создать абстрактные классы.
     # Для абстрактных классов учесть, что Meta тоже общая,
     # ее тоже наследовать от Meta абстрактного класса.
+    # макс

@@ -57,7 +57,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         # Лишний метод, рейтинг лучше рассчитать прямо
-        # во вью, используя аннотацию.
+        # во вью, используя аннотацию. макс
         reviews = Title.objects.get(
             pk=obj.pk
         ).reviews.all().aggregate(Avg('score'))

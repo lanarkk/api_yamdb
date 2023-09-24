@@ -1,15 +1,14 @@
-# TODO дописать пермишн "владелец аккаунта или нет доступа"
 from rest_framework import permissions
 
 
 class IsAdmin(permissions.BasePermission):
-    # Хорошим тоном считается оставить документацию к классу. Так и поступим.
+    # Хорошим тоном считается оставить документацию к классу. Так и поступим. макс
         
     def has_permission(self,
                        request,
                        view):
         # Нужна пустая строка.
-        # А нужен ли перенос?   
+        # А нужен ли перенос?   дима
         return (
             request.user.is_authenticated
             and (
@@ -21,6 +20,7 @@ class IsAdmin(permissions.BasePermission):
                 # Предлагаю в модели сделать метод is_admin который будет
                 # возвращать булево при всех возможных вариантах админов(роль,
                 # супер, стафф). Также метод лучше сделать свойством) класса.
+                # дима
                 or request.user.is_superuser
             )
         )
@@ -30,7 +30,7 @@ class IsAdminUserOrReadOnly(permissions.IsAdminUser):
 
     def has_permission(self, request, view):
         is_admin = super().has_permission(request, view)
-        # Одноразовая переменная.
+        # Одноразовая переменная. дима
 
         return (
             request.method in permissions.SAFE_METHODS
@@ -68,4 +68,4 @@ class IsAuthorAuthenticatedOrReadOnly(
         # С помощью логического оператора or можно объединить проверки
         # и сделать один возврат. Стоит учесть, что вычисление следующего
         # операнда после or будет только в случае если
-        # предыдущий будет равен False.
+        # предыдущий будет равен False. дима
