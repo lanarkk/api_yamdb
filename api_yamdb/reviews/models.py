@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from reviews.validators import validate_year
+
 LENGTH_LIMIT = 21
 
 User = get_user_model()
@@ -42,15 +44,11 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField('Название', max_length=256)
-    year = models.IntegerField('Год выпуска')
-    # Тут лучше использовать PositiveSmallIntegerField. Будет
-    # занимать меньше места в БД.
-    # Не хватает валидации, что год не больше текущего.
-    # Чтобы ускорить поиск произведений по году,
-    # лучше добавить индекс. Как это работает.
-    # https://im-cloud.ru/blog/chto-takoe-indeksy-bazy-dannyh-dlja-nachinajushhih/
-    # https://docs.djangoproject.com/en/2.2/ref/models/fields/#positivesmallintegerfield
-    # лиля
+    year = models.PositiveBigIntegerField(
+        'Год выпуска',
+        validators=(validate_year,),
+        db_index=True
+    )
     description = models.TextField('Описание', blank=True)
     category = models.ForeignKey(
         Category,
