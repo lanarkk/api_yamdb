@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class CustomUser(AbstractUser):
     class Roles(models.TextChoices):
+        # Нужны пустые строки до и после класса.
         USER: str = 'user'
         MODERATOR: str = 'moderator'
         ADMIN: str = 'admin'
@@ -24,9 +25,14 @@ class CustomUser(AbstractUser):
     role = models.CharField(
         _('user role'),
         max_length=128,
+        # Максимальную длину можно подсчитывать "на лету".
+        # Если в будущем нужно будет заводить еще роли,
+        # то тут не придется править. В генераторе списка подсчитываем
+        # длины ролей, максимальная будет граничным значением.
         choices=Roles.choices,
         default=Roles.USER,
     )
 
     class Meta:
         ordering = ('date_joined',)
+        # Для поля username нужна валидация на "me".

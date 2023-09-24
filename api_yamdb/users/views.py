@@ -20,12 +20,16 @@ class Auth(CreateAPIView):
             data=request.data
         )
         if serializer.is_valid():
+            # У метода is_valid есть параметр-флаг raise_exception,
+            # если его поставить в True, то можно избавиться
+            # от проверок, метод вернет ошибки валидации.
             data = serializer.validated_data
             user = get_object_or_404(
                 User,
                 username=data.get('username'),
             )
             if user.confirmation_code != data.get('confirmation_code'):
+                # Валидацию выносим в сериализатор.
                 return Response(
                     serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST,
@@ -61,6 +65,9 @@ class Signup(views.APIView):
         serializer = SignUpSerializer(user, data=request.data)
 
         if serializer.is_valid():
+            # У метода is_valid есть параметр-флаг raise_exception,
+            # если его поставить в True, то можно избавиться
+            # от проверок, метод вернет ошибки валидации.
             serializer.save(
                 confirmation_code=confirmation_code
             )
