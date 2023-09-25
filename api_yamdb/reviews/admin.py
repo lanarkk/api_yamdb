@@ -3,63 +3,82 @@ from django.contrib import admin
 from reviews.models import Category, Comment, Genre, Review, Title
 
 
+admin.site.empty_value_display = '-пусто-'
+
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    """Модель Категории в админ зоне.
+    Описывает ее внешний вид и функционал."""
 
-    fields = (
-        'name',
-        'slug',
-    )
+    list_display = ('name', 'slug', )
+    search_fields = ('name', )
 
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
 
-    fields = (
-        'name',
-        'slug',
-    )
+    list_display = ('name', 'slug', )
+    search_fields = ('name', )
 
 
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
+    """Модель произведения в админ зоне.
+    Описывает ее внешний вид и функционал."""
 
-    fields = (
+    list_display = (
+        'id',
         'name',
         'year',
         'description',
         'category',
-        'genre',
+        'genre_list'
     )
+    list_editable = ('name', 'year', 'description', 'category',)
+    search_fields = ('year', 'name', )
+    list_filter = ('category', )
+
+    def genre_list(self, obj):
+        if obj.genre.all():
+            return list(obj.genre.all().values_list('name', flat=True))
 
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
+    """Модель Отзыва в админ зоне.
+    Описывает ее внешний вид и функционал."""
 
-    fields = (
-        'title',
+    list_display = (
         'text',
         'pub_date',
         'author',
+        'title',
         'score',
     )
+    list_editable = ('text',)
+    search_fields = ('text', 'score',)
+    list_filter = ('author', 'score',)
+    list_display_links = ('author', 'title',)
 
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
+    """Модель комментария в админ зоне.
+    Описывает ее внешний вид и функционал."""
 
-    fields = (
-        'review',
-        'author',
+    list_display = (
         'text',
         'pub_date',
+        'author',
+        'review',
     )
+    list_editable = ('text',)
+    search_fields = ('text', )
+    list_filter = ('author', 'review',)
+    list_display_links = ('author', 'review',)
 
-# Так как наш проект управляется командой администраторов,
-# админ-части также стоить уделить внимание.
-# Заводим все модели, настраиваем классы.
-# Для произведений желательна возможность редактировать
-# категории прямо в листе произведений. Кроме того нужно вывести
+# Кроме того нужно вывести
 # список жанров через запятую в листе произведений
 # (для этого придется написать метод).
 # макс

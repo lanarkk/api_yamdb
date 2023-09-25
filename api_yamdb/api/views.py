@@ -1,12 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
-from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, serializers, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.filters import TitleFilter
 from api.permissions import (IsAdmin, IsAdminUserOrReadOnly,
                              IsAuthorAuthenticatedOrReadOnly)
 from api.serializers import (CategorySerializer, CommentSerializer,
@@ -111,23 +111,14 @@ class GenreViewset(ViewsetsGenericsMixin):
     permission_classes = (IsAdminUserOrReadOnly, )
 
 
-class TitleFilter(FilterSet):
-    # Это класс фильтрации, лучше создать файл с
-    # "говорящим" названием и вынести код туда. макс
-    category = CharFilter(field_name='category__slug')
-    genre = CharFilter(field_name='genre__slug')
-
-    class Meta:
-        model = Title
-        fields = ('category', 'genre', 'name', 'year')
-
-
 class TitleViewset(AllowedMethodsMixin):
-    queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     permission_classes = (IsAdminUserOrReadOnly,)
+
+    def get_queryset(self):
+        return Title.objects.all()
 
     def fetch_read_only_fields_data(self, serializer):
         """Получает из запроса жанры и категорию произведения.
@@ -148,7 +139,6 @@ class TitleViewset(AllowedMethodsMixin):
                 kwargs['category'] = None
         if genres:
             kwargs['genre'] = Genre.objects.filter(slug__in=genres)
-
         return kwargs
 
     def validate_read_only_fields(self, check_fields, **kwargs):
@@ -176,6 +166,7 @@ class TitleViewset(AllowedMethodsMixin):
 
     def perform_update(self, serializer):
         self.create_or_update(serializer)
+
 # Предлагаю написать еще один сереализатор для произведения,
 # будет один для создания/обновления, один для вывода,
 # тут просто выбирать в зависимости от запроса. Код сильно похудеет.
@@ -226,14 +217,13 @@ class CommentViewSet(AllowedMethodsMixin):
     )
 
     def get_review(self):
-        title = get_object_or_404(
-            Title,
-            pk=self.kwargs.get('title_id'),
-        )  # Лишний запрос, все можно сделать в одном. макс
         return get_object_or_404(
             Review,
             pk=self.kwargs.get('review_id'),
-            title=title,
+            title=get_object_or_404(
+                Title,
+                pk=self.kwargs.get('title_id'),
+            ),
         )
 
     def get_queryset(self):

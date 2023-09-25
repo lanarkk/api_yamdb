@@ -3,45 +3,72 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-LENGTH_LIMIT = 21
+DISPLAY_LIMIT = 21
+CHAR_MAX_LENGHT = 256
+SLUG_MAX_LENGHT = 50
+RATING_MAX_POINT = 10
+RATING_MIN_POINT = 1
+RATING_DEFAULT_POINT = 0
 
 User = get_user_model()
 
 
-class Category(models.Model):
+class CatGenModel(models.Model):
+    """Абстрактная модель для моделей из категории и жанра."""
+
+    name = models.CharField('Название', max_length=CHAR_MAX_LENGHT)
+    slug = models.SlugField('Слаг', max_length=SLUG_MAX_LENGHT, unique=True)
+
+    class Meta:
+        abstract = True
+        ordering = ('slug',)
+
+
+class RevComModel(models.Model):
+    """Абстрактная модель для отзывов и комментариев."""
+
+    text = models.TextField('Текст')
+    pub_date = models.DateTimeField(
+        'Дата публикации',
+        auto_now_add=True,
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ('pub_date',)
+
+
+class Category(CatGenModel):
     """Модель категорий."""
 
-    name = models.CharField('Название', max_length=256)
-    slug = models.SlugField('Слаг', max_length=50, unique=True)
-
-    class Meta:
+    class Meta(CatGenModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ('slug',)
 
     def __str__(self):
-        return self.slug[:LENGTH_LIMIT]
+        return self.slug[:DISPLAY_LIMIT]
 
 
-class Genre(models.Model):
+class Genre(CatGenModel):
     """Модель жанров."""
 
-    name = models.CharField('Название', max_length=256)
-    slug = models.SlugField('Слаг', max_length=50, unique=True)
-
-    class Meta:
+    class Meta(CatGenModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ('slug',)
 
     def __str__(self):
-        return self.slug[:LENGTH_LIMIT]
+        return self.slug[:DISPLAY_LIMIT]
 
 
 class Title(models.Model):
     """Модель произведений."""
 
-    name = models.CharField('Название', max_length=256)
+    name = models.CharField('Название', max_length=CHAR_MAX_LENGHT)
     year = models.IntegerField('Год выпуска')
     # Тут лучше использовать PositiveSmallIntegerField. Будет
     # занимать меньше места в БД.
@@ -70,7 +97,7 @@ class Title(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return self.name[:LENGTH_LIMIT]
+        return self.name[:DISPLAY_LIMIT]
 
 
 class TitleGenre(models.Model):
@@ -89,7 +116,7 @@ class TitleGenre(models.Model):
     )
 
 
-class Review(models.Model):
+class Review(RevComModel):
     """Модель отзыва. Создает в
     бд таблицу с отзывами.
     """
@@ -99,33 +126,24 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Произведение',
     )
-    text = models.TextField('Текст')
-    pub_date = models.DateTimeField(
-        'Дата публикации',
-        auto_now_add=True,
-    )
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        verbose_name='Автор',
-    )
     score = models.IntegerField(
         'Рейтинг',
         validators=[
-            MaxValueValidator(10),
-            # Лучше добавить сообщение, чтобы пользователь понимал,
-            # что поправить.
-            # Для этого поля можно указать дефолтное значение.
-            # макс
-            MinValueValidator(1),
+            MaxValueValidator(
+                limit_value=RATING_MAX_POINT,
+                message='Не более 10 баллов.'
+            ),
+            MinValueValidator(
+                limit_value=RATING_MIN_POINT,
+                message='Не менее 1 балла.'
+            ),
         ]
     )
 
-    class Meta:
+    class Meta(RevComModel.Meta):
         verbose_name = 'отзыв'
         verbose_name_plural = 'отзывы'
         default_related_name = "reviews"
-        ordering = ('pub_date',)
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'title'],
@@ -134,10 +152,10 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return self.text[:LENGTH_LIMIT]
+        return self.text[:DISPLAY_LIMIT]
 
 
-class Comment(models.Model):
+class Comment(RevComModel):
     """Модель Комментария. Создает в
     бд таблицу с комментариями к отзывам.
     """
@@ -147,30 +165,11 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Отзыв',
     )
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        verbose_name='Автор',
-    )
-    text = models.TextField('Текст')
-    pub_date = models.DateTimeField(
-        'Дата публикации',
-        auto_now_add=True,
-    )
 
-    class Meta:
+    class Meta(RevComModel.Meta):
         verbose_name = 'комментарий'
         verbose_name_plural = 'комментарии'
         default_related_name = "comments"
-        ordering = ('pub_date',)
 
     def __str__(self):
-        return self.text[:LENGTH_LIMIT]
-
-# Общее для всех моделей:
-    # Длины полей убрать в константы.
-    # Для моделей с одинаковыми полями
-    # создать абстрактные классы.
-    # Для абстрактных классов учесть, что Meta тоже общая,
-    # ее тоже наследовать от Meta абстрактного класса.
-    # макс
+        return self.text[:DISPLAY_LIMIT]
