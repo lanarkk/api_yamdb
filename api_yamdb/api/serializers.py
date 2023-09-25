@@ -1,10 +1,9 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-# from django.db.models import Avg
 from rest_framework import serializers
 
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title, TitleGenre
 
 User = get_user_model()
 
@@ -46,9 +45,42 @@ class GenreSerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
 
 
+class TitleReadOnlySerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+    rating = serializers.IntegerField()
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+        read_only_fields = ('category', 'genre', 'rating')
+
+
+class ObjRelatedField(serializers.SlugRelatedField):
+
+    def to_representation(self, value):
+        if isinstance(value, Category):
+            serializer = CategorySerializer(value)
+        elif isinstance(value, Genre):
+            serializer = GenreSerializer(value)
+        else:
+            raise Exception(
+                'Запрос содержит неожиданные данные.'
+            )
+        return serializer.data
+
+
 class TitleSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(read_only=True, many=True)
+    category = ObjRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+    genre = ObjRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+    rating = serializers.IntegerField(read_only=True, allow_null=True)
 
     class Meta:
         model = Title
@@ -59,8 +91,19 @@ class TitleSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Указанный год выпуска произведения еще не наступил.'
             )
-
         return value
+
+    def create(self, validated_data):
+        genres = validated_data.pop('genre')
+        title = Title.objects.create(
+            **validated_data
+        )
+        for genre in genres:
+            TitleGenre.objects.create(
+                title=title,
+                genre=genre
+            )
+        return title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
