@@ -1,10 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import RegexValidator
 
 
-class CustomUser(AbstractUser):# Нужны пустые строки до и после класса. дима
+class CustomUser(AbstractUser):
 
     class Roles(models.TextChoices):
         USER: str = 'user'
@@ -25,17 +24,9 @@ class CustomUser(AbstractUser):# Нужны пустые строки до и п
         default=''
     )
 
-    def get_max_role_length(self):
-        return max(len(role) for role, _ in self.Roles.choices)
-    # Максимальную длину можно подсчитывать "на лету".
-    # Если в будущем нужно будет заводить еще роли,
-    # то тут не придется править. В генераторе списка подсчитываем
-    # длины ролей, максимальная будет граничным значением.
-    # дима
-
     role = models.CharField(
         _('user role'),
-        max_length=get_max_role_length,
+        max_length=max(len(role) for role, _ in Roles.choices),
         choices=Roles.choices,
         default=Roles.USER,
     )

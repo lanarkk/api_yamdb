@@ -29,7 +29,6 @@ class TitleAdmin(admin.ModelAdmin):
         'year',
         'description',
         'category',
-        'genre',
     )
 
 

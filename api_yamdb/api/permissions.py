@@ -2,31 +2,22 @@ from rest_framework import permissions
 
 
 class IsAdmin(permissions.BasePermission):
-    # Хорошим тоном считается оставить документацию к классу. Так и поступим. макс
     ADMIN_ROLE = 'admin'
 
     def is_admin(self, user):
         return user.role == self.ADMIN_ROLE or user.is_superuser
 
-    def has_permission(self, request, view):# Нужна пустая строка. А нужен ли перенос?   дима
+    def has_permission(self, request, view):
         return (
             request.user.is_authenticated
             and self.is_admin(request.user)
         )
-        # Использовать хардкод не очень хорошо, в любой момент мы
-        # можем поменять название роли на какое-нибудь другое, и нам
-        # надо не забыть поменять его везде. Роли пользователей лучше
-        # вынести в отдельные константы, например ADMIN = 'admin'.
-        # Предлагаю в модели сделать метод is_admin который будет
-        # возвращать булево при всех возможных вариантах админов(роль,
-        # супер, стафф). Также метод лучше сделать свойством) класса.
-        # дима
 
 
 class IsAdminUserOrReadOnly(permissions.IsAdminUser):
 
     def has_permission(self, request, view):
-        #Одноразовая переменна. дима
+        # Одноразовая переменна. дима
         return (
             request.method in permissions.SAFE_METHODS
             or super().has_permission(request, view)
