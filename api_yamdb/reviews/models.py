@@ -71,7 +71,11 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField('Название', max_length=CHAR_MAX_LENGHT)
-    year = models.IntegerField('Год выпуска')
+    year = models.PositiveBigIntegerField(
+        'Год выпуска',
+        validators=(validate_year,),
+        db_index=True
+    )
     description = models.TextField('Описание', blank=True)
     category = models.ForeignKey(
         Category,

@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -69,17 +68,6 @@ class GenreViewset(ViewsetsGenericsMixin):
     serializer_class = GenreSerializer
     lookup_field = 'slug'
     permission_classes = (IsAdminUserOrReadOnly, )
-
-
-class TitleFilter(FilterSet):
-    # Это класс фильтрации, лучше создать файл с
-    # "говорящим" названием и вынести код туда. макс
-    category = CharFilter(field_name='category__slug')
-    genre = CharFilter(field_name='genre__slug')
-
-    class Meta:
-        model = Title
-        fields = ('category', 'genre', 'name', 'year')
 
 
 class TitleViewset(AllowedMethodsMixin):

@@ -77,8 +77,3 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('text', )
     list_filter = ('author', 'review',)
     list_display_links = ('author', 'review',)
-
-# Кроме того нужно вывести
-# список жанров через запятую в листе произведений
-# (для этого придется написать метод).
-# макс
