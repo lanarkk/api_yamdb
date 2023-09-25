@@ -31,10 +31,6 @@ class UsersViewSet(AllowedMethodsMixin):
 
 
 class ProfileViewSet(APIView):
-    # Лучше реализовать users/me/ через декоратор action в UsersViewSet,
-    # не придется переписывать два метода,
-    # обойдемся условием и избавимся от дублирующих строк.
-    # дима
     """Обрабатывает запросы к users/me/."""
 
     permission_classes = (permissions.IsAuthenticated,)
@@ -105,7 +101,6 @@ class ReviewViewSet(AllowedMethodsMixin):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        # Валидацию выносим в сериализатор.
         review = Review.objects.filter(
             title=self.get_title(),
             author=self.request.user
