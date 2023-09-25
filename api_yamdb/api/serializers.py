@@ -1,10 +1,9 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
 from rest_framework import serializers
 
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title, TitleGenre
 
 User = get_user_model()
 
@@ -46,32 +45,65 @@ class GenreSerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(read_only=True, many=True)
-    rating = serializers.SerializerMethodField()
+class TitleReadOnlySerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
         fields = '__all__'
+        read_only_fields = ('category', 'genre', 'rating')
 
-    def get_rating(self, obj):
-        # Лишний метод, рейтинг лучше рассчитать прямо
-        # во вью, используя аннотацию. макс
-        reviews = Title.objects.get(
-            pk=obj.pk
-        ).reviews.all().aggregate(Avg('score'))
-        if reviews['score__avg']:
-            return int(round(reviews['score__avg'], 0))
-        return None
+
+class ObjRelatedField(serializers.SlugRelatedField):
+
+    def to_representation(self, value):
+        if isinstance(value, Category):
+            serializer = CategorySerializer(value)
+        elif isinstance(value, Genre):
+            serializer = GenreSerializer(value)
+        else:
+            raise Exception(
+                'Запрос содержит неожиданные данные.'
+            )
+        return serializer.data
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    category = ObjRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+    genre = ObjRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+    rating = serializers.IntegerField(read_only=True, allow_null=True)
+
+    class Meta:
+        model = Title
+        fields = '__all__'
 
     def validate_year(self, value):
         if value > datetime.now().year:
             raise serializers.ValidationError(
                 'Указанный год выпуска произведения еще не наступил.'
             )
-
         return value
+
+    def create(self, validated_data):
+        genres = validated_data.pop('genre')
+        title = Title.objects.create(
+            **validated_data
+        )
+        for genre in genres:
+            TitleGenre.objects.create(
+                title=title,
+                genre=genre
+            )
+        return title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
