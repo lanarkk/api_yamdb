@@ -5,8 +5,6 @@ from django.db import models
 
 from reviews.validators import validate_year
 
-from reviews.validators import validate_year
-
 DISPLAY_LIMIT = 21
 CHAR_MAX_LENGHT = 256
 SLUG_MAX_LENGHT = 50
@@ -73,11 +71,7 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField('Название', max_length=CHAR_MAX_LENGHT)
-    year = models.PositiveBigIntegerField(
-        'Год выпуска',
-        validators=(validate_year,),
-        db_index=True
-    )
+    year = models.IntegerField('Год выпуска')
     description = models.TextField('Описание', blank=True)
     category = models.ForeignKey(
         Category,
