@@ -4,19 +4,39 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+admin.site.empty_value_display = '-пусто-'
+
+
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    fields = (
-        'username',
-        'email',
+class CustomUserAdmin(admin.ModelAdmin):
+    """Модель Пользователя в админ зоне.
+    Описывает ее внешний вид и функционал."""
+
+    list_display = (
+        'id',
         'first_name',
         'last_name',
-        'bio',
+        'username',
+        'password',
+        'email',
         'role',
+        'is_staff',
+        'is_superuser',
+        'bio',
+        'date_joined',
     )
-# Так как наш проект управляется командой администраторов,
-# админ-части также стоить уделить внимание.
-# Заводим все модели, настраиваем классы.
-
-# На странице списка изменений пользователей
-# стоит добавить возможность менять роль.
+    list_editable = ('is_superuser', 'role', )
+    search_fields = (
+        'id',
+        'first_name',
+        'last_name',
+        'username',
+        'email',
+    )
+    list_filter = (
+        'email',
+        'role',
+        'is_staff',
+        'is_superuser',
+        'date_joined',
+    )

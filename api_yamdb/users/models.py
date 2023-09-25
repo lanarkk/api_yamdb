@@ -1,14 +1,15 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
 
 class CustomUser(AbstractUser):
+
     class Roles(models.TextChoices):
-        # Нужны пустые строки до и после класса.
         USER: str = 'user'
         MODERATOR: str = 'moderator'
         ADMIN: str = 'admin'
+
     email = models.EmailField(
         _('email address'),
         unique=True,
@@ -22,17 +23,21 @@ class CustomUser(AbstractUser):
         blank=True,
         default=''
     )
+
     role = models.CharField(
         _('user role'),
-        max_length=128,
-        # Максимальную длину можно подсчитывать "на лету".
-        # Если в будущем нужно будет заводить еще роли,
-        # то тут не придется править. В генераторе списка подсчитываем
-        # длины ролей, максимальная будет граничным значением.
+        max_length=max(len(role) for role, _ in Roles.choices),
         choices=Roles.choices,
         default=Roles.USER,
     )
 
     class Meta:
         ordering = ('date_joined',)
-        # Для поля username нужна валидация на "me".
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'email'],
+                name='unique_user'
+            )
+        ]
