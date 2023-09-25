@@ -2,6 +2,11 @@ from rest_framework import permissions
 
 
 class IsAdmin(permissions.BasePermission):
+  """Права доступа для админ-пользователя и суперпользователя.
+
+    Допускает любые операции для админ-пользователя и суперпользователя,
+    остальным запрещает любые операции.
+    """
     ADMIN_ROLE = 'admin'
 
     def is_admin(self, user):
@@ -15,7 +20,12 @@ class IsAdmin(permissions.BasePermission):
 
 
 class IsAdminUserOrReadOnly(permissions.IsAdminUser):
+    """Права доступа админ-пользователя, суперпользователя.
 
+    Допускает любые операции для админ-пользователя и суперпользователя.
+    Незарегистрированному пользователю, модератору и
+    обычному пользователю доступны только безопасные методы.
+    """
     def has_permission(self, request, view):
         # Одноразовая переменна. дима
         return (
@@ -50,7 +60,3 @@ class IsAuthorAuthenticatedOrReadOnly(
                 and view.action in ['partial_update', 'destroy']
             )
         )
-        # С помощью логического оператора or можно объединить проверки
-        # и сделать один возврат. Стоит учесть, что вычисление следующего
-        # операнда после or будет только в случае если
-        # предыдущий будет равен False. дима

@@ -33,11 +33,11 @@ class CustomUser(AbstractUser):
 
     class Meta:
         ordering = ('date_joined',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         constraints = [
             models.UniqueConstraint(
                 fields=['username', 'email'],
                 name='unique_user'
             )
         ]
-        # Для поля username нужна валидация на "me".
-        # дима
