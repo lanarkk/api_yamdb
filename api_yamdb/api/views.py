@@ -1,14 +1,13 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.mixins import AllowedMethodsMixin, ViewsetsGenericsMixin
+from api.filters import TitleFilter
 from api.permissions import (IsAdmin, IsAdminUserOrReadOnly,
                              IsAuthorAuthenticatedOrReadOnly)
 from api.serializers import (CategorySerializer, CommentSerializer,
@@ -67,17 +66,8 @@ class CategoryViewset(ViewsetsGenericsMixin):
 class GenreViewset(ViewsetsGenericsMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-
-
-class TitleFilter(FilterSet):
-    # Это класс фильтрации, лучше создать файл с
-    # "говорящим" названием и вынести код туда. макс
-    category = CharFilter(field_name='category__slug')
-    genre = CharFilter(field_name='genre__slug')
-
-    class Meta:
-        model = Title
-        fields = ('category', 'genre', 'name', 'year')
+    lookup_field = 'slug'
+    permission_classes = (IsAdminUserOrReadOnly, )
 
 
 class TitleViewset(AllowedMethodsMixin):
@@ -140,14 +130,13 @@ class CommentViewSet(AllowedMethodsMixin):
     )
 
     def get_review(self):
-        title = get_object_or_404(
-            Title,
-            pk=self.kwargs.get('title_id'),
-        )  # Лишний запрос, все можно сделать в одном. макс
         return get_object_or_404(
             Review,
             pk=self.kwargs.get('review_id'),
-            title=title,
+            title=get_object_or_404(
+                Title,
+                pk=self.kwargs.get('title_id'),
+            ),
         )
 
     def get_queryset(self):

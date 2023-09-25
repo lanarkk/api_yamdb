@@ -2,8 +2,12 @@ from rest_framework import permissions
 
 
 class IsAdmin(permissions.BasePermission):
-    # Хорошим тоном считается оставить документацию к классу. Так и поступим. макс
-        
+    """Права доступа для админ-пользователя и суперпользователя.
+
+    Допускает любые операции для админ-пользователя и суперпользователя,
+    остальным запрещает любые операции.
+    """
+
     def has_permission(self,
                        request,
                        view):
@@ -27,7 +31,12 @@ class IsAdmin(permissions.BasePermission):
 
 
 class IsAdminUserOrReadOnly(permissions.IsAdminUser):
+    """Права доступа админ-пользователя, суперпользователя.
 
+    Допускает любые операции для админ-пользователя и суперпользователя.
+    Незарегистрированному пользователю, модератору и
+    обычному пользователю доступны только безопасные методы.
+    """
     def has_permission(self, request, view):
         is_admin = super().has_permission(request, view)
         # Одноразовая переменная. дима
