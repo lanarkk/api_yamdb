@@ -26,62 +26,27 @@ class UsersViewSet(AllowedMethodsMixin):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdmin,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
 
-    @action(detail=False, methods=['GET', 'PATCH'], url_path='me')
-    def my_profile(self, request):
+    def get_permissions(self):
+        if '/me/' in self.request.path:
+            return (permissions.IsAuthenticated(),)
+        return (IsAdmin(),)
+
+    @action(detail=False, methods=['GET', 'PATCH'])
+    def me(self, request):
         if request.method == 'GET':
-            if request.user.is_authenticated:  # Лишняя проверка,
-                # в декораторе можно в permission_classes, указать пермишен. лиля
-                serializer = UserSerializer(request.user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(  # Это тоже лишнее. дима
-                {'message': 'Неавторизованный пользователь'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        elif request.method == 'PATCH':  # Лишний elif, методы ограничены лиля
-            # параметром methods в декораторе, один мы уже исключили выше.
-            if request.user.is_authenticated:  # См. выше. лиля
-                serializer = UserSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True)
-                if serializer.is_valid():  # У метода is_valid есть лиля
-                    # параметр-флаг raise_exception, если его
-                    # поставить в True, то можно избавиться от
-                    # проверок, метод вернет ошибки валидации.
-                    serializer.save(role=request.user.role)
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-                return Response(
-                    serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-class ProfileViewSet(APIView):  # Лишний класс. лиля
-    """Обрабатывает запросы к users/me/."""
-
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        user = get_object_or_404(
-            User,
-            username=request.user.username
-        )
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def patch(self, request):
-        user = get_object_or_404(
-            User,
-            username=request.user.username
-        )
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = UserSerializer(
+            request.user,
+            data=request.data,
+            partial=True)
         serializer.is_valid(raise_exception=True)
-        serializer.save(role=user.role)
+        serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
