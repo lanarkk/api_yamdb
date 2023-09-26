@@ -19,7 +19,8 @@ class Auth(CreateAPIView):
         serializer: AuthSerializer = self.serializer_class(
             data=request.data
         )
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid(raise_exception=True):  # Лишнее условие
+            # raise_exception=True сам выбросит исключение.
             data = serializer.validated_data
             user = get_object_or_404(
                 User,
@@ -34,7 +35,8 @@ class Auth(CreateAPIView):
                 get_tokens_for_user(user),
                 status=status.HTTP_200_OK,
             )
-        return Response(
+        return Response(  # Лишние строки, raise_exception=True
+            # сам выбросит исключение
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
         )
@@ -60,7 +62,7 @@ class Signup(views.APIView):
 
         serializer = SignUpSerializer(user, data=request.data)
 
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid(raise_exception=True):  # if уже не нужен.
             serializer.save(confirmation_code=confirmation_code)
             send_verification_code(
                 user_email=serializer.validated_data['email'],

@@ -48,7 +48,8 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleReadOnlySerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.IntegerField()
+    rating = serializers.IntegerField()  # Нужно добавить реадонли,
+    # и дефолтное значение.
 
     class Meta:
         model = Title
@@ -57,6 +58,9 @@ class TitleReadOnlySerializer(serializers.ModelSerializer):
 
 
 class ObjRelatedField(serializers.SlugRelatedField):
+    # Лишний класс. Достаточно to_representation переопределить в
+    # TitleSerializer и вернуть в нем TitleReadOnlySerializer
+    # подставив в него instance.
 
     def to_representation(self, value):
         if isinstance(value, Category):
@@ -71,22 +75,22 @@ class ObjRelatedField(serializers.SlugRelatedField):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = ObjRelatedField(
+    category = ObjRelatedField(  # Подойдет стандартное SlugRelatedField.
         queryset=Category.objects.all(),
         slug_field='slug'
     )
-    genre = ObjRelatedField(
+    genre = ObjRelatedField(  # Подойдет стандартное SlugRelatedField.
         queryset=Genre.objects.all(),
         slug_field='slug',
         many=True
     )
-    rating = serializers.IntegerField(read_only=True, allow_null=True)
+    rating = serializers.IntegerField(read_only=True, allow_null=True)  # Лишнее поле.
 
     class Meta:
         model = Title
         fields = '__all__'
 
-    def validate_year(self, value):
+    def validate_year(self, value):  # Есть в проекте validate_year
         if value > datetime.now().year:
             raise serializers.ValidationError(
                 'Указанный год выпуска произведения еще не наступил.'
@@ -94,6 +98,7 @@ class TitleSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        # Лишний метод.
         genres = validated_data.pop('genre')
         title = Title.objects.create(
             **validated_data

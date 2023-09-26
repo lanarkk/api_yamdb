@@ -20,7 +20,8 @@ router_v1.register(
     basename='reviews'
 )
 urls_v1 = [
-    path('users/me/', ProfileViewSet.as_view()),
+    path('users/me/', ProfileViewSet.as_view()),  # Лишний урл, этот урл
+    # уже есть в роутере.
     path('', include(router_v1.urls)),
     path('auth/', include('users.urls'))
 ]

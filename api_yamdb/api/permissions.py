@@ -8,15 +8,17 @@ class IsAdmin(permissions.BasePermission):
     Допускает любые операции для админ-пользователя и суперпользователя,
     остальным запрещает любые операции.
     """
-    ADMIN_ROLE = 'admin'
+    ADMIN_ROLE = 'admin'  # Эта константа есть в классе Roles
 
-    def is_admin(self, user):
+    def is_admin(self, user):  # Выносим в модель Пользователя.
+        # Также метод лучше сделать свойством класса.
+        # https://pythonim.ru/osnovy/dekorator-svoystv-property-python](https://pythonim.ru/osnovy/dekorator-svoystv-property-python
         return user.role == self.ADMIN_ROLE or user.is_superuser
 
     def has_permission(self, request, view):
         return (
             request.user.is_authenticated
-            and self.is_admin(request.user)
+            and self.is_admin(request.user)  # Проверяем свойство.
         )
 
 
@@ -33,6 +35,8 @@ class IsAdminUserOrReadOnly(permissions.IsAdminUser):
             request.method in permissions.SAFE_METHODS
             or super().has_permission(request, view)
             or (request.user.is_authenticated and request.user.role == "admin")
+            # Вместо request.user.role == "admin" используем свойство is_admin
+            # (оно у нас появится).
         )
 
 
@@ -56,8 +60,16 @@ class IsAuthorAuthenticatedOrReadOnly(
             or (
                 (
                     request.user.role in ['moderator', 'admin']
+                    # Использовать хардкод не очень хорошо, в любой момент мы
+                    # можем поменять название роли на какое-нибудь другое, и
+                    # нам надо не забыть поменять его везде. Роли
+                    # пользователей лучше вынести в отдельные константы,
+                    # например ADMIN = 'admin'. Предлагаю в модели сделать
+                    # метод is_admin который будет возвращать булево при всех
+                    # возможных вариантах админов(роль, супер, стафф).
+                    # Также метод лучше сделать свойством) класса.
                     or request.user.is_superuser
                 )
-                and view.action in ['partial_update', 'destroy']
+                and view.action in ['partial_update', 'destroy']  # Лишнее.
             )
         )

@@ -5,6 +5,7 @@ from django.db import models
 
 from reviews.validators import validate_year
 
+# Константы выносим в settings.py.
 DISPLAY_LIMIT = 21
 CHAR_MAX_LENGHT = 256
 SLUG_MAX_LENGHT = 50
@@ -54,6 +55,7 @@ class Category(CatGenModel):
 
     def __str__(self):
         return self.slug[:DISPLAY_LIMIT]
+    # Метод __str__ также размещаем в абстрактной.
 
 
 class Genre(CatGenModel):
@@ -71,7 +73,10 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField('Название', max_length=CHAR_MAX_LENGHT)
-    year = models.PositiveBigIntegerField(
+    year = models.PositiveBigIntegerField(  # PositiveBigIntegerField -
+        # 9223372036854775807, хотелось бы верить, что Земля до этого
+        # времени дотянет. Тут лучше использовать PositiveSmallIntegerField.
+        # https://docs.djangoproject.com/en/2.2/ref/models/fields/#positivesmallintegerfield
         'Год выпуска',
         validators=(validate_year,),
         db_index=True
@@ -124,7 +129,9 @@ class Review(RevComModel):
         on_delete=models.CASCADE,
         verbose_name='Произведение',
     )
-    score = models.IntegerField(
+    score = models.IntegerField(  # Тут лучше использовать
+        # PositiveSmallIntegerField.
+        # https://docs.djangoproject.com/en/2.2/ref/models/fields/#positivesmallintegerfield
         'Рейтинг',
         validators=[
             MaxValueValidator(
@@ -150,7 +157,8 @@ class Review(RevComModel):
         ]
 
     def __str__(self):
-        return self.text[:DISPLAY_LIMIT]
+        return self.text[:DISPLAY_LIMIT]  # Метод __str__ также
+    # размещаем в абстрактной.
 
 
 class Comment(RevComModel):

@@ -12,6 +12,8 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if value == 'me':
+            # Валидация на me повторяется в нескольких местах,
+            # можно вынести в отдельную функцию.
             raise serializers.ValidationError(
                 'Ты не можешь использовать me в качестве имени!'
             )
@@ -20,4 +22,5 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 class AuthSerializer(serializers.Serializer):
     username = serializers.CharField()
+    # Нужно ограничить поля по длине.
     confirmation_code = serializers.CharField()

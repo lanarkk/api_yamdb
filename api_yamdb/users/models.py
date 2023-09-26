@@ -41,3 +41,7 @@ class CustomUser(AbstractUser):
                 name='unique_user'
             )
         ]
+# Предлагаю в модели сделать метод is_admin который будет возвращать булево
+# при всех возможных вариантах админов(роль, супер, стафф). Также метод
+# лучше сделать свойством класса.
+# https://pythonim.ru/osnovy/dekorator-svoystv-property-python](https://pythonim.ru/osnovy/dekorator-svoystv-property-python
