@@ -12,7 +12,6 @@ class IsAdmin(permissions.BasePermission):
 
     def is_admin(self, user):  # Выносим в модель Пользователя. дима
         # Также метод лучше сделать свойством класса.
-        # https://pythonim.ru/osnovy/dekorator-svoystv-property-python](https://pythonim.ru/osnovy/dekorator-svoystv-property-python
         return user.role == self.ADMIN_ROLE or user.is_superuser
 
     def has_permission(self, request, view):
@@ -69,7 +68,6 @@ class IsAuthorAuthenticatedOrReadOnly(
                     # возможных вариантах админов(роль, супер, стафф).
                     # Также метод лучше сделать свойством) класса. дима
                     or request.user.is_superuser
-                )
-                and view.action in ['partial_update', 'destroy']  # Лишнее.
+                ) # Лишнее.
             )
         )

@@ -37,11 +37,7 @@ class UsersViewSet(AllowedMethodsMixin):
             if request.user.is_authenticated:  # Лишняя проверка,
                 # в декораторе можно в permission_classes, указать пермишен. лиля
                 serializer = UserSerializer(request.user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(  # Это тоже лишнее. дима
-                {'message': 'Неавторизованный пользователь'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+                return Response(serializer.data, status=status.HTTP_200_OK)  #это лишнее Дима
         elif request.method == 'PATCH':  # Лишний elif, методы ограничены лиля
             # параметром methods в декораторе, один мы уже исключили выше.
             if request.user.is_authenticated:  # См. выше. лиля

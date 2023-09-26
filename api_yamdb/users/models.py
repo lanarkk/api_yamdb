@@ -41,6 +41,11 @@ class CustomUser(AbstractUser):
                 name='unique_user'
             )
         ]
+
+    @property
+    def is_admin(self):
+        return self.role in [self.Roles.ADMIN,
+                             self.Roles.MODERATOR] or self.is_superuser
 # Предлагаю в модели сделать метод is_admin который будет возвращать булево
 # при всех возможных вариантах админов(роль, супер, стафф). Также метод
 # лучше сделать свойством класса. дима. ты в пермишенах уже разобрался
