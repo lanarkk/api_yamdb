@@ -21,7 +21,7 @@ router_v1.register(
 )
 urls_v1 = [
     path('users/me/', ProfileViewSet.as_view()),  # Лишний урл, этот урл
-    # уже есть в роутере.
+    # уже есть в роутере. лиля/дима
     path('', include(router_v1.urls)),
     path('auth/', include('users.urls'))
 ]

@@ -35,21 +35,21 @@ class UsersViewSet(AllowedMethodsMixin):
     def my_profile(self, request):
         if request.method == 'GET':
             if request.user.is_authenticated:  # Лишняя проверка,
-                # в декораторе можно в permission_classes, указать пермишен.
+                # в декораторе можно в permission_classes, указать пермишен. лиля
                 serializer = UserSerializer(request.user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(  # Это тоже лишнее.
+            return Response(  # Это тоже лишнее. дима
                 {'message': 'Неавторизованный пользователь'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        elif request.method == 'PATCH':  # Лишний elif, методы ограничены
+        elif request.method == 'PATCH':  # Лишний elif, методы ограничены лиля
             # параметром methods в декораторе, один мы уже исключили выше.
-            if request.user.is_authenticated:  # См. выше.
+            if request.user.is_authenticated:  # См. выше. лиля
                 serializer = UserSerializer(
                     request.user,
                     data=request.data,
                     partial=True)
-                if serializer.is_valid():  # У метода is_valid есть
+                if serializer.is_valid():  # У метода is_valid есть лиля
                     # параметр-флаг raise_exception, если его
                     # поставить в True, то можно избавиться от
                     # проверок, метод вернет ошибки валидации.
@@ -61,7 +61,7 @@ class UsersViewSet(AllowedMethodsMixin):
                 )
 
 
-class ProfileViewSet(APIView):  # Лишний класс.
+class ProfileViewSet(APIView):  # Лишний класс. лиля
     """Обрабатывает запросы к users/me/."""
 
     permission_classes = (permissions.IsAuthenticated,)
@@ -132,7 +132,7 @@ class ReviewViewSet(AllowedMethodsMixin):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        review = Review.objects.filter(  # Валидацию выносим в сериализатор.
+        review = Review.objects.filter(  # Валидацию выносим в сериализатор. макс
             title=self.get_title(),
             author=self.request.user
         ).exists()
@@ -159,7 +159,7 @@ class CommentViewSet(AllowedMethodsMixin):
         return get_object_or_404(
             Review,
             pk=self.kwargs.get('review_id'),
-            title=get_object_or_404(  # Запрос не нужен,
+            title=get_object_or_404(  # Запрос не нужен, макс
                 # просто self.kwargs.get('title_id')
                 Title,
                 pk=self.kwargs.get('title_id'),

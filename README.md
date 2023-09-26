@@ -60,14 +60,14 @@
     python3 manage.py migrate
     ```
     <!-- Не удалось развернуть проект.
-    ModuleNotFoundError: No module named 'django_filters'  -->
+    ModuleNotFoundError: No module named 'django_filters'  макс-->
 
 7. Загрузить данные из csv фалов:
 
     ```bash
     python3 manage.py load_scv_data
     ```
-    <!-- Тут есть опечатка в название команды. -->
+    <!-- Тут есть опечатка в название команды. лиля-->
 
 8. Запустить проект:
 

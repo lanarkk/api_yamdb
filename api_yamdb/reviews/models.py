@@ -5,7 +5,7 @@ from django.db import models
 
 from reviews.validators import validate_year
 
-# Константы выносим в settings.py.
+# Константы выносим в settings.py. макс
 DISPLAY_LIMIT = 21
 CHAR_MAX_LENGHT = 256
 SLUG_MAX_LENGHT = 50
@@ -55,7 +55,7 @@ class Category(CatGenModel):
 
     def __str__(self):
         return self.slug[:DISPLAY_LIMIT]
-    # Метод __str__ также размещаем в абстрактной.
+    # Метод __str__ также размещаем в абстрактной. макс
 
 
 class Genre(CatGenModel):
@@ -73,7 +73,7 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField('Название', max_length=CHAR_MAX_LENGHT)
-    year = models.PositiveBigIntegerField(  # PositiveBigIntegerField -
+    year = models.PositiveBigIntegerField(  # PositiveBigIntegerField - макс
         # 9223372036854775807, хотелось бы верить, что Земля до этого
         # времени дотянет. Тут лучше использовать PositiveSmallIntegerField.
         # https://docs.djangoproject.com/en/2.2/ref/models/fields/#positivesmallintegerfield
@@ -129,7 +129,7 @@ class Review(RevComModel):
         on_delete=models.CASCADE,
         verbose_name='Произведение',
     )
-    score = models.IntegerField(  # Тут лучше использовать
+    score = models.IntegerField(  # Тут лучше использовать макс
         # PositiveSmallIntegerField.
         # https://docs.djangoproject.com/en/2.2/ref/models/fields/#positivesmallintegerfield
         'Рейтинг',
@@ -157,7 +157,7 @@ class Review(RevComModel):
         ]
 
     def __str__(self):
-        return self.text[:DISPLAY_LIMIT]  # Метод __str__ также
+        return self.text[:DISPLAY_LIMIT]  # Метод __str__ также макс
     # размещаем в абстрактной.
 
 

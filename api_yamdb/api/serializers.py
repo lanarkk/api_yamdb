@@ -49,7 +49,7 @@ class TitleReadOnlySerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
     rating = serializers.IntegerField()  # Нужно добавить реадонли,
-    # и дефолтное значение.
+    # и дефолтное значение. макс
 
     class Meta:
         model = Title
@@ -60,7 +60,7 @@ class TitleReadOnlySerializer(serializers.ModelSerializer):
 class ObjRelatedField(serializers.SlugRelatedField):
     # Лишний класс. Достаточно to_representation переопределить в
     # TitleSerializer и вернуть в нем TitleReadOnlySerializer
-    # подставив в него instance.
+    # подставив в него instance. лиля
 
     def to_representation(self, value):
         if isinstance(value, Category):
@@ -75,16 +75,16 @@ class ObjRelatedField(serializers.SlugRelatedField):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = ObjRelatedField(  # Подойдет стандартное SlugRelatedField.
+    category = ObjRelatedField(  # Подойдет стандартное SlugRelatedField. лиля
         queryset=Category.objects.all(),
         slug_field='slug'
     )
-    genre = ObjRelatedField(  # Подойдет стандартное SlugRelatedField.
+    genre = ObjRelatedField(  # Подойдет стандартное SlugRelatedField. лиля
         queryset=Genre.objects.all(),
         slug_field='slug',
         many=True
     )
-    rating = serializers.IntegerField(read_only=True, allow_null=True)  # Лишнее поле.
+    rating = serializers.IntegerField(read_only=True, allow_null=True)  # Лишнее поле. лиля
 
     class Meta:
         model = Title
@@ -98,7 +98,7 @@ class TitleSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        # Лишний метод.
+        # Лишний метод. лиля
         genres = validated_data.pop('genre')
         title = Title.objects.create(
             **validated_data

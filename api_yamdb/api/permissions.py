@@ -8,9 +8,9 @@ class IsAdmin(permissions.BasePermission):
     Допускает любые операции для админ-пользователя и суперпользователя,
     остальным запрещает любые операции.
     """
-    ADMIN_ROLE = 'admin'  # Эта константа есть в классе Roles
+    ADMIN_ROLE = 'admin'  # Эта константа есть в классе Roles дима
 
-    def is_admin(self, user):  # Выносим в модель Пользователя.
+    def is_admin(self, user):  # Выносим в модель Пользователя. дима
         # Также метод лучше сделать свойством класса.
         # https://pythonim.ru/osnovy/dekorator-svoystv-property-python](https://pythonim.ru/osnovy/dekorator-svoystv-property-python
         return user.role == self.ADMIN_ROLE or user.is_superuser
@@ -36,7 +36,7 @@ class IsAdminUserOrReadOnly(permissions.IsAdminUser):
             or super().has_permission(request, view)
             or (request.user.is_authenticated and request.user.role == "admin")
             # Вместо request.user.role == "admin" используем свойство is_admin
-            # (оно у нас появится).
+            # (оно у нас появится). дима
         )
 
 
@@ -67,7 +67,7 @@ class IsAuthorAuthenticatedOrReadOnly(
                     # например ADMIN = 'admin'. Предлагаю в модели сделать
                     # метод is_admin который будет возвращать булево при всех
                     # возможных вариантах админов(роль, супер, стафф).
-                    # Также метод лучше сделать свойством) класса.
+                    # Также метод лучше сделать свойством) класса. дима
                     or request.user.is_superuser
                 )
                 and view.action in ['partial_update', 'destroy']  # Лишнее.
