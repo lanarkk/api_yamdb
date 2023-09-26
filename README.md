@@ -15,7 +15,7 @@
 1. Клонируем репозиторий:
 
     ```bash
-    git clone git@github.com:lanarkk/api_final_yatube.git
+    git clone git@github.com:lanarkk/api_yamdb.git
     ```
 
 2. Развертываем виртуальное окружение:
