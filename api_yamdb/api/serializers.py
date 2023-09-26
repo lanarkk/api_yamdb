@@ -48,13 +48,12 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleReadOnlySerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.IntegerField()  # Нужно добавить реадонли,
-    # и дефолтное значение. макс
+    rating = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Title
         fields = '__all__'
-        read_only_fields = ('category', 'genre', 'rating')
+        read_only_fields = ('category', 'genre')
 
 
 class ObjRelatedField(serializers.SlugRelatedField):
@@ -84,7 +83,6 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         many=True
     )
-    rating = serializers.IntegerField(read_only=True, allow_null=True)  # Лишнее поле. лиля
 
     class Meta:
         model = Title
