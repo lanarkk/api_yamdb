@@ -59,10 +59,6 @@ class CustomUser(AbstractUser):
 
     @property
     def is_admin_or_moder(self):
-        if (
-            self.role == self.Roles.ADMIN
-            or self.role == self.Roles.MODERATOR
-            or self.is_superuser or self.is_staff
-        ):
+        if (self.is_admin or self.role == self.Roles.MODERATOR):
             return True
         return False
