@@ -97,19 +97,16 @@ class ReviewViewSet(AllowedMethodsMixin):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        review = Review.objects.filter(  # Валидацию выносим в сериализатор. макс
-            title=self.get_title(),
-            author=self.request.user
-        ).exists()
-        if review:
-            raise serializers.ValidationError(
-                'Нельзя оставить больше одного '
-                'отзыва на одно произведение!'
-            )
         serializer.save(
             author=self.request.user,
             title=self.get_title()
         )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['author'] = self.request.user
+        context['title'] = self.get_title()
+        return context
 
 
 class CommentViewSet(AllowedMethodsMixin):

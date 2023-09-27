@@ -92,6 +92,20 @@ class ReviewSerializer(serializers.ModelSerializer):
         exclude = ('title',)
         read_only_fields = ('title',)
 
+    def validate(self, attrs):
+        if (
+            Review.objects.filter(
+                title=self.context['title'],
+                author=self.context['author']
+            ).exists()
+            and self.context['request'].method == 'POST'
+        ):
+            raise serializers.ValidationError(
+                'Нельзя оставить больше одного '
+                'отзыва на одно произведение!'
+            )
+        return attrs
+
 
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Комментария."""
