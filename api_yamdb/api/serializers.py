@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title, TitleGenre
@@ -49,13 +50,12 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleReadOnlySerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.IntegerField(default=None)  # Нужно добавить реадонли,
-    # и дефолтное значение. макс
+    rating = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Title
         fields = '__all__'
-        read_only_fields = ('category', 'genre', 'rating')
+        read_only_fields = ('category', 'genre')
 
 
 class TitleSerializer(serializers.ModelSerializer):

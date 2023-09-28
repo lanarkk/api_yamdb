@@ -41,8 +41,24 @@ class CustomUser(AbstractUser):
                 name='unique_user'
             )
         ]
-# Предлагаю в модели сделать метод is_admin который будет возвращать булево
-# при всех возможных вариантах админов(роль, супер, стафф). Также метод
-# лучше сделать свойством класса. дима. ты в пермишенах уже разобрался
-# как это сделать, так что это тоже на тебе. если не разберешься - пиши.
-# https://pythonim.ru/osnovy/dekorator-svoystv-property-python](https://pythonim.ru/osnovy/dekorator-svoystv-property-python
+
+    @property
+    def is_admin(self):
+        if (
+            self.role == self.Roles.ADMIN
+            or self.is_superuser or self.is_staff
+        ):
+            return True
+        return False
+
+    @property
+    def is_reg_user(self):
+        if self.role == self.Roles.USER:
+            return True
+        return False
+
+    @property
+    def is_admin_or_moder(self):
+        if (self.is_admin or self.role == self.Roles.MODERATOR):
+            return True
+        return False

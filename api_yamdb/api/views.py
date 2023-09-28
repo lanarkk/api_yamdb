@@ -121,11 +121,7 @@ class CommentViewSet(AllowedMethodsMixin):
         return get_object_or_404(
             Review,
             pk=self.kwargs.get('review_id'),
-            title=get_object_or_404(  # Запрос не нужен, макс
-                # просто self.kwargs.get('title_id')
-                Title,
-                pk=self.kwargs.get('title_id'),
-            ),
+            title=self.kwargs.get('title_id')
         )
 
     def get_queryset(self):
