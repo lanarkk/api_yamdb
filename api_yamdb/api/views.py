@@ -26,58 +26,26 @@ class UsersViewSet(AllowedMethodsMixin):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdmin,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
 
-    @action(detail=False, methods=['GET', 'PATCH'], url_path='me')
-    def my_profile(self, request):
+    def get_permissions(self):
+        if '/me/' in self.request.path:
+            return (permissions.IsAuthenticated(),)
+        return (IsAdmin(),)
+
+    @action(detail=False, methods=['GET', 'PATCH'])
+    def me(self, request):
         if request.method == 'GET':
-            if request.user.is_authenticated:  # Лишняя проверка,
-                # в декораторе можно в permission_classes, указать пермишен. лиля
-                serializer = UserSerializer(request.user)
-                return Response(serializer.data, status=status.HTTP_200_OK)  #это лишнее Дима
-        elif request.method == 'PATCH':  # Лишний elif, методы ограничены лиля
-            # параметром methods в декораторе, один мы уже исключили выше.
-            if request.user.is_authenticated:  # См. выше. лиля
-                serializer = UserSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True)
-                if serializer.is_valid():  # У метода is_valid есть лиля
-                    # параметр-флаг raise_exception, если его
-                    # поставить в True, то можно избавиться от
-                    # проверок, метод вернет ошибки валидации.
-                    serializer.save(role=request.user.role)
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-                return Response(
-                    serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-
-class ProfileViewSet(APIView):  # Лишний класс. лиля
-    """Обрабатывает запросы к users/me/."""
-
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        user = get_object_or_404(
-            User,
-            username=request.user.username
-        )
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def patch(self, request):
-        user = get_object_or_404(
-            User,
-            username=request.user.username
-        )
-        serializer = UserSerializer(user, data=request.data, partial=True)
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(
+            request.user,
+            data=request.data,
+            partial=True)
         serializer.is_valid(raise_exception=True)
-        serializer.save(role=user.role)
+        serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -128,19 +96,16 @@ class ReviewViewSet(AllowedMethodsMixin):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        review = Review.objects.filter(  # Валидацию выносим в сериализатор. макс
-            title=self.get_title(),
-            author=self.request.user
-        ).exists()
-        if review:
-            raise serializers.ValidationError(
-                'Нельзя оставить больше одного '
-                'отзыва на одно произведение!'
-            )
         serializer.save(
             author=self.request.user,
             title=self.get_title()
         )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['author'] = self.request.user
+        context['title'] = self.get_title()
+        return context
 
 
 class CommentViewSet(AllowedMethodsMixin):
@@ -155,11 +120,7 @@ class CommentViewSet(AllowedMethodsMixin):
         return get_object_or_404(
             Review,
             pk=self.kwargs.get('review_id'),
-            title=get_object_or_404(  # Запрос не нужен, макс
-                # просто self.kwargs.get('title_id')
-                Title,
-                pk=self.kwargs.get('title_id'),
-            ),
+            title=self.kwargs.get('title_id')
         )
 
     def get_queryset(self):
