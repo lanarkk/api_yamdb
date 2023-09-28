@@ -1,6 +1,5 @@
-from rest_framework import filters, mixins, viewsets
-
 from api.permissions import IsAdminUserOrReadOnly
+from rest_framework import filters, mixins, viewsets
 
 
 class ViewsetsGenericsMixin(

@@ -4,10 +4,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, views
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-
 from users.serializers import AuthSerializer, SignUpSerializer
 from users.services import (generate_verification_code, get_tokens_for_user,
                             send_verification_code)
+
 
 User = get_user_model()
 
@@ -17,8 +17,7 @@ class Auth(CreateAPIView):
 
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)# Лишнее условие
-            # raise_exception=True сам выбросит исключение.
+        serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
         user = get_object_or_404(User, username=data.get('username'))

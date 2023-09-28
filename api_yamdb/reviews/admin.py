@@ -1,7 +1,5 @@
 from django.contrib import admin
-
 from reviews.models import Category, Comment, Genre, Review, Title
-
 
 admin.site.empty_value_display = '-пусто-'
 
@@ -17,6 +15,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
+    """Модель жанра в админ зоне.
+    Описывает ее внешний вид и функционал."""
 
     list_display = ('name', 'slug', )
     search_fields = ('name', )
