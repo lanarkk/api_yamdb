@@ -65,7 +65,7 @@
 7. Загрузить данные из csv фалов:
 
     ```bash
-    python3 manage.py load_scv_data
+    python3 manage.py load_csv_data
     ```
     <!-- Тут есть опечатка в название команды. лиля-->
 
