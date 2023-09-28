@@ -1,12 +1,3 @@
-from django.contrib.auth import get_user_model
-from django.db.models import Avg
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions, serializers, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
 from api.filters import TitleFilter
 from api.mixins import AllowedMethodsMixin, ViewsetsGenericsMixin
 from api.permissions import (IsAdmin, IsAdminUserOrReadOnly,
@@ -15,6 +6,13 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, ReviewSerializer,
                              TitleReadOnlySerializer, TitleSerializer,
                              UserSerializer)
+from django.contrib.auth import get_user_model
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from reviews.models import Category, Genre, Review, Title
 
 
@@ -26,57 +24,26 @@ class UsersViewSet(AllowedMethodsMixin):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdmin,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
 
-    @action(detail=False, methods=['GET', 'PATCH'], url_path='me')
-    def my_profile(self, request):
+    def get_permissions(self):
+        if '/me/' in self.request.path:
+            return (permissions.IsAuthenticated(),)
+        return (IsAdmin(),)
+
+    @action(detail=False, methods=['GET', 'PATCH'])
+    def me(self, request):
         if request.method == 'GET':
-            if request.user.is_authenticated:
-                serializer = UserSerializer(request.user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(
-                {'message': 'Неавторизованный пользователь'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        elif request.method == 'PATCH':
-            if request.user.is_authenticated:
-                serializer = UserSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True)
-                if serializer.is_valid():
-                    serializer.save(role=request.user.role)
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-                return Response(
-                    serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-
-class ProfileViewSet(APIView):
-    """Обрабатывает запросы к users/me/."""
-
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        user = get_object_or_404(
-            User,
-            username=request.user.username
-        )
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def patch(self, request):
-        user = get_object_or_404(
-            User,
-            username=request.user.username
-        )
-        serializer = UserSerializer(user, data=request.data, partial=True)
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(
+            request.user,
+            data=request.data,
+            partial=True)
         serializer.is_valid(raise_exception=True)
-        serializer.save(role=user.role)
+        serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -127,19 +94,16 @@ class ReviewViewSet(AllowedMethodsMixin):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        review = Review.objects.filter(
-            title=self.get_title(),
-            author=self.request.user
-        ).exists()
-        if review:
-            raise serializers.ValidationError(
-                'Нельзя оставить больше одного '
-                'отзыва на одно произведение!'
-            )
         serializer.save(
             author=self.request.user,
             title=self.get_title()
         )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['author'] = self.request.user
+        context['title'] = self.get_title()
+        return context
 
 
 class CommentViewSet(AllowedMethodsMixin):
@@ -154,10 +118,7 @@ class CommentViewSet(AllowedMethodsMixin):
         return get_object_or_404(
             Review,
             pk=self.kwargs.get('review_id'),
-            title=get_object_or_404(
-                Title,
-                pk=self.kwargs.get('title_id'),
-            ),
+            title=self.kwargs.get('title_id')
         )
 
     def get_queryset(self):

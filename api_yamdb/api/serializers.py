@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.validators import validate_year
 
-from reviews.models import Category, Comment, Genre, Review, Title, TitleGenre
 
 User = get_user_model()
 
@@ -48,62 +47,32 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleReadOnlySerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.IntegerField()
+    rating = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Title
         fields = '__all__'
-        read_only_fields = ('category', 'genre', 'rating')
-
-
-class ObjRelatedField(serializers.SlugRelatedField):
-
-    def to_representation(self, value):
-        if isinstance(value, Category):
-            serializer = CategorySerializer(value)
-        elif isinstance(value, Genre):
-            serializer = GenreSerializer(value)
-        else:
-            raise Exception(
-                'Запрос содержит неожиданные данные.'
-            )
-        return serializer.data
+        read_only_fields = ('category', 'genre')
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = ObjRelatedField(
+    category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug'
     )
-    genre = ObjRelatedField(
+    genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         slug_field='slug',
         many=True
     )
-    rating = serializers.IntegerField(read_only=True, allow_null=True)
 
     class Meta:
         model = Title
         fields = '__all__'
+        validators = (validate_year,)
 
-    def validate_year(self, value):
-        if value > datetime.now().year:
-            raise serializers.ValidationError(
-                'Указанный год выпуска произведения еще не наступил.'
-            )
-        return value
-
-    def create(self, validated_data):
-        genres = validated_data.pop('genre')
-        title = Title.objects.create(
-            **validated_data
-        )
-        for genre in genres:
-            TitleGenre.objects.create(
-                title=title,
-                genre=genre
-            )
-        return title
+    def to_representation(self, instance):
+        return TitleReadOnlySerializer(instance).data
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -119,6 +88,20 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         exclude = ('title',)
         read_only_fields = ('title',)
+
+    def validate(self, attrs):
+        if (
+            Review.objects.filter(
+                title=self.context['title'],
+                author=self.context['author']
+            ).exists()
+            and self.context['request'].method == 'POST'
+        ):
+            raise serializers.ValidationError(
+                'Нельзя оставить больше одного '
+                'отзыва на одно произведение!'
+            )
+        return attrs
 
 
 class CommentSerializer(serializers.ModelSerializer):

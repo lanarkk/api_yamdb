@@ -41,3 +41,24 @@ class CustomUser(AbstractUser):
                 name='unique_user'
             )
         ]
+
+    @property
+    def is_admin(self):
+        if (
+            self.role == self.Roles.ADMIN
+            or self.is_superuser or self.is_staff
+        ):
+            return True
+        return False
+
+    @property
+    def is_reg_user(self):
+        if self.role == self.Roles.USER:
+            return True
+        return False
+
+    @property
+    def is_admin_or_moder(self):
+        if (self.is_admin or self.role == self.Roles.MODERATOR):
+            return True
+        return False

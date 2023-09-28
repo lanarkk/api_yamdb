@@ -8,15 +8,11 @@ class IsAdmin(permissions.BasePermission):
     Допускает любые операции для админ-пользователя и суперпользователя,
     остальным запрещает любые операции.
     """
-    ADMIN_ROLE = 'admin'
-
-    def is_admin(self, user):
-        return user.role == self.ADMIN_ROLE or user.is_superuser
 
     def has_permission(self, request, view):
         return (
             request.user.is_authenticated
-            and self.is_admin(request.user)
+            and request.user.is_admin
         )
 
 
@@ -32,7 +28,7 @@ class IsAdminUserOrReadOnly(permissions.IsAdminUser):
         return (
             request.method in permissions.SAFE_METHODS
             or super().has_permission(request, view)
-            or (request.user.is_authenticated and request.user.role == "admin")
+            or (request.user.is_authenticated and request.user.is_admin)
         )
 
 
@@ -49,15 +45,6 @@ class IsAuthorAuthenticatedOrReadOnly(
     def has_object_permission(self, request, view, obj):
         return (
             request.method in permissions.SAFE_METHODS
-            or (
-                request.user.role == 'user'
-                and obj.author == request.user
-            )
-            or (
-                (
-                    request.user.role in ['moderator', 'admin']
-                    or request.user.is_superuser
-                )
-                and view.action in ['partial_update', 'destroy']
-            )
+            or request.user.is_reg_user and obj.author == request.user
+            or request.user.is_admin_or_moder
         )

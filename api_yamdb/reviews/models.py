@@ -2,15 +2,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
 from reviews.validators import validate_year
 
-DISPLAY_LIMIT = 21
-CHAR_MAX_LENGHT = 256
-SLUG_MAX_LENGHT = 50
-RATING_MAX_POINT = 10
-RATING_MIN_POINT = 1
-RATING_DEFAULT_POINT = 0
 
 User = get_user_model()
 
@@ -18,12 +11,17 @@ User = get_user_model()
 class CatGenModel(models.Model):
     """Абстрактная модель для моделей из категории и жанра."""
 
-    name = models.CharField('Название', max_length=CHAR_MAX_LENGHT)
-    slug = models.SlugField('Слаг', max_length=SLUG_MAX_LENGHT, unique=True)
+    name = models.CharField('Название', max_length=settings.CHAR_MAX_LENGHT)
+    slug = models.SlugField(
+        'Слаг', max_length=settings.SLUG_MAX_LENGHT, unique=True
+    )
 
     class Meta:
         abstract = True
         ordering = ('slug',)
+
+    def __str__(self):
+        return self.slug[:settings.DISPLAY_LIMIT]
 
 
 class RevComModel(models.Model):
@@ -44,6 +42,9 @@ class RevComModel(models.Model):
         abstract = True
         ordering = ('pub_date',)
 
+    def __str__(self):
+        return self.text[:settings.DISPLAY_LIMIT]
+
 
 class Category(CatGenModel):
     """Модель категорий."""
@@ -51,9 +52,6 @@ class Category(CatGenModel):
     class Meta(CatGenModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-
-    def __str__(self):
-        return self.slug[:DISPLAY_LIMIT]
 
 
 class Genre(CatGenModel):
@@ -63,15 +61,12 @@ class Genre(CatGenModel):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
-    def __str__(self):
-        return self.slug[:DISPLAY_LIMIT]
-
 
 class Title(models.Model):
     """Модель произведений."""
 
-    name = models.CharField('Название', max_length=CHAR_MAX_LENGHT)
-    year = models.PositiveBigIntegerField(
+    name = models.CharField('Название', max_length=settings.CHAR_MAX_LENGHT)
+    year = models.PositiveSmallIntegerField(
         'Год выпуска',
         validators=(validate_year,),
         db_index=True
@@ -95,7 +90,7 @@ class Title(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return self.name[:DISPLAY_LIMIT]
+        return self.name[:settings.DISPLAY_LIMIT]
 
 
 class TitleGenre(models.Model):
@@ -124,15 +119,15 @@ class Review(RevComModel):
         on_delete=models.CASCADE,
         verbose_name='Произведение',
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         'Рейтинг',
         validators=[
             MaxValueValidator(
-                limit_value=RATING_MAX_POINT,
+                limit_value=settings.RATING_MAX_POINT,
                 message='Не более 10 баллов.'
             ),
             MinValueValidator(
-                limit_value=RATING_MIN_POINT,
+                limit_value=settings.RATING_MIN_POINT,
                 message='Не менее 1 балла.'
             ),
         ]
@@ -148,9 +143,6 @@ class Review(RevComModel):
                 name='unique_review'
             ),
         ]
-
-    def __str__(self):
-        return self.text[:DISPLAY_LIMIT]
 
 
 class Comment(RevComModel):
@@ -168,6 +160,3 @@ class Comment(RevComModel):
         verbose_name = 'комментарий'
         verbose_name_plural = 'комментарии'
         default_related_name = "comments"
-
-    def __str__(self):
-        return self.text[:DISPLAY_LIMIT]

@@ -15,7 +15,7 @@
 1. Клонируем репозиторий:
 
     ```bash
-    git clone git@github.com:lanarkk/api_final_yatube.git
+    git clone git@github.com:lanarkk/api_yamdb.git
     ```
 
 2. Развертываем виртуальное окружение:
@@ -63,7 +63,7 @@
 7. Загрузить данные из csv фалов:
 
     ```bash
-    python3 manage.py load_scv_data
+    python3 manage.py load_csv_data
     ```
 
 8. Запустить проект:
