@@ -40,7 +40,6 @@ class UsersViewSet(AllowedMethodsMixin):
         if request.method == 'GET':
             serializer = UserSerializer(request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
         serializer = UserSerializer(
             request.user,
             data=request.data,
