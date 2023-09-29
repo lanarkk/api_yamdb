@@ -96,12 +96,6 @@ class ReviewViewSet(AllowedMethodsMixin):
             title=self.get_title()
         )
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['author'] = self.request.user
-        context['title'] = self.get_title()
-        return context
-
 
 class CommentViewSet(AllowedMethodsMixin):
     """Вьюсет для модели Комментария."""
