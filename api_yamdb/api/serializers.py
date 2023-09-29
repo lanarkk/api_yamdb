@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+
 from reviews.models import Category, Comment, Genre, Review, Title
 from reviews.validators import validate_year
+from users.validators import validate_username
 
 User = get_user_model()
 
@@ -18,13 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
             'bio',
             'role'
         )
-
-    def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Нельзя использовать "me" в качестве имени пользователя.'
-            )
-        return value
+        validators = (validate_username,)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -91,8 +87,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if (
             Review.objects.filter(
-                title=self.context['title'],  # Достаем из self.context.['view'] из kwargs
-                author=self.context['author']  # Достаем из self.context['request']
+                title=self.context['view'].kwargs['title_id'],
+                author=self.context['request'].user
             ).exists()
             and self.context['request'].method == 'POST'
         ):
