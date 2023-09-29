@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -12,10 +13,9 @@ class SignUpSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         self.validate_me_username(value)
         return value
-        # Валидация на me повторяется в нескольких местах,
-        # можно вынести в отдельную функцию. макс
 
     def validate_me_username(self, username):
+        # Выносим в validators.py, используем в 2-х местах.
         if username == 'me':
             raise serializers.ValidationError(
                 'Ты не можешь использовать "me" в качестве имени!'
@@ -23,6 +23,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class AuthSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=255)
-    # Нужно ограничить поля по длине. макс
-    confirmation_code = serializers.CharField(max_length=64)
+    username = serializers.CharField(max_length=settings.USERNAME_MAX_LENGHT)
+    confirmation_code = serializers.CharField(
+        max_length=settings.CODE_MAX_LENGHT
+    )
