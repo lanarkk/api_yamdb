@@ -16,6 +16,7 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              UserSerializer)
 from reviews.models import Category, Genre, Review, Title
 
+
 User = get_user_model()
 
 

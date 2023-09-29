@@ -1,9 +1,8 @@
-from rest_framework import serializers
 import regex as re
+from rest_framework import serializers
 
 
 def validate_me_username(username):
-    # Выносим в validators.py, используем в 2-х местах.
     if username == 'me':
         raise serializers.ValidationError(
             'Ты не можешь использовать "me" в качестве имени!'

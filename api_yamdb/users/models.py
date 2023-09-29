@@ -35,8 +35,7 @@ class CustomUser(AbstractUser):
         max_length=max(len(role) for role, _ in Roles.choices),
         choices=Roles.choices,
         default=Roles.USER,
-    )  # Для поля username нельзя создать юзера
-    # с ником me. Нужно добавить валидатор.
+    )
 
     class Meta:
         ordering = ('date_joined',)
