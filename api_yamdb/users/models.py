@@ -3,14 +3,19 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from users.validators import validate_me_username, validate_username
+
 
 class CustomUser(AbstractUser):
-
     class Roles(models.TextChoices):
         USER: str = 'user'
         MODERATOR: str = 'moderator'
         ADMIN: str = 'admin'
 
+    username = models.CharField(
+        max_length=settings.USERNAME_MAX_LENGHT, unique=True,
+        validators=[validate_username, validate_me_username]
+    )
     email = models.EmailField(
         _('email address'),
         unique=True,
