@@ -3,7 +3,6 @@ from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title
 from reviews.validators import validate_year
 
-
 User = get_user_model()
 
 
@@ -92,8 +91,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if (
             Review.objects.filter(
-                title=self.context['title'],
-                author=self.context['author']
+                title=self.context['title'],  # Достаем из self.context.['view'] из kwargs
+                author=self.context['author']  # Достаем из self.context['request']
             ).exists()
             and self.context['request'].method == 'POST'
         ):

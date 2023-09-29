@@ -1,3 +1,11 @@
+from django.contrib.auth import get_user_model
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 from api.filters import TitleFilter
 from api.mixins import AllowedMethodsMixin, ViewsetsGenericsMixin
 from api.permissions import (IsAdmin, IsAdminUserOrReadOnly,
@@ -6,15 +14,7 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, ReviewSerializer,
                              TitleReadOnlySerializer, TitleSerializer,
                              UserSerializer)
-from django.contrib.auth import get_user_model
-from django.db.models import Avg
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from reviews.models import Category, Genre, Review, Title
-
 
 User = get_user_model()
 
@@ -27,13 +27,12 @@ class UsersViewSet(AllowedMethodsMixin):
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
+    permission_classes = (IsAdmin,)
 
-    def get_permissions(self):
-        if '/me/' in self.request.path:
-            return (permissions.IsAuthenticated(),)
-        return (IsAdmin(),)
-
-    @action(detail=False, methods=['GET', 'PATCH'])
+    @action(
+        detail=False, methods=['GET', 'PATCH'],
+        permission_classes=(permissions.IsAuthenticated,)
+    )
     def me(self, request):
         if request.method == 'GET':
             serializer = UserSerializer(request.user)
@@ -55,8 +54,6 @@ class CategoryViewset(ViewsetsGenericsMixin):
 class GenreViewset(ViewsetsGenericsMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    lookup_field = 'slug'
-    permission_classes = (IsAdminUserOrReadOnly, )
 
 
 class TitleViewset(AllowedMethodsMixin):
